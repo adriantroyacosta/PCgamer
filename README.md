@@ -19,13 +19,15 @@ Si no tiene permisos de administrador, el script abre solo una ventana nueva com
 
 ## Como funciona
 
-Se abre una ventana con tres pestanas. **Nada se instala ni cambia hasta que presionas un boton** y confirmas.
+Se abre una ventana con pestanas en el orden logico para dejar la PC lista para jugar, con **un solo reinicio al final**.
+**Nada se instala ni cambia hasta que confirmas.**
 
 | Pestana | Que tiene |
 |---------|-----------|
-| **Mi PC** | Aviso de conectar todos los perifericos y boton *Volver a escanear*. Muestra Windows, tipo (escritorio/laptop), procesador, grafica, RAM, disco y perifericos conectados (Corsair, Logitech, Razer, SteelSeries). Recomendaciones: driver de la grafica (si falta, boton para abrir su pagina), programas de perifericos y consejos de BIOS (EXPO/XMP, Resizable BAR). |
-| **Instalar** | Launchers, utilidades y programas de perifericos con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado sale como *(ya instalado)*. Botones *Marcar recomendados*, *Desmarcar todo* e *Instalar seleccionados*. |
-| **Optimizar** | Ajustes con casillas y explicacion al pasar el mouse. Vienen marcados los recomendados para tu PC (por ejemplo, Alto rendimiento solo en escritorio). Botones *Aplicar*, *Revertir* y *Abrir WinUtil (opcional)*. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
+| **Mi PC** | Aviso de conectar todos los perifericos y boton *Volver a escanear*. Muestra Windows, tipo (escritorio/laptop), procesador, grafica, RAM, disco y perifericos conectados. Recomendaciones y consejos de BIOS (EXPO/XMP, Resizable BAR). Boton **Hacer todo lo recomendado** que corre las fases 1, 2 y 3 seguidas. |
+| **1. Driver** | Detecta la tarjeta de video (AMD, NVIDIA o Intel) y si su driver ya esta instalado. Si falta, viene marcado: se instala con winget o, si no se puede, se abre la pagina oficial. Va primero porque los juegos y ajustes como HAGS dependen de el. |
+| **2. Programas** | Launchers, utilidades y programas de perifericos con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado sale como *(ya instalado)*. |
+| **3. Optimizar** | Ajustes con casillas y explicacion al pasar el mouse, recomendados segun tu PC. Va al final para que el punto de restauracion guarde la PC con todo instalado. Botones *Aplicar*, *Revertir* y *Abrir WinUtil (opcional)*. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
 
 Abajo hay un registro con lo que va haciendo y el resultado (instaladas / ya estaban / fallaron).
 

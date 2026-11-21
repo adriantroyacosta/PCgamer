@@ -10,6 +10,9 @@ Proyecto personal: no tiene relacion con trabajo.
 - `instalar.ps1`: script principal (PowerShell 5.1, ventana WPF con XAML embebido). Partes: listas de apps
   (`$launchers`, `$utilidades`, `$perifericos`, `$drivers`), `$ajustes` (cada uno con Desc, Recomendar, Aplicar,
   Revertir), deteccion (`Get-InfoPC`), ventana (XAML + `Conectar-Eventos`) y `Main` (auto-elevacion y ShowDialog).
+  Pestanas en orden de fases: Mi PC, 1. Driver, 2. Programas, 3. Optimizar (`Fase-Driver`, `Fase-Programas`,
+  `Fase-Optimizar`); el boton "Hacer todo lo recomendado" las corre seguidas y ofrece reiniciar una sola vez.
+  En `$drivers`, `Id` vacio = ID de winget no verificado todavia (se abre la pagina oficial).
   Se publica en GitHub y se ejecuta con `irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex`.
   No usar `exit` (cerraria la ventana del usuario con `iex`): salir de `Main` con `return`.
   winget se corre con `Start-Process -PassThru` y un bucle que llama `Pump` para que la ventana no se congele.
@@ -22,7 +25,7 @@ Proyecto personal: no tiene relacion con trabajo.
 ## Hardware y apps del usuario
 - GPU **AMD** (driver AMD Software / Adrenalin, se instala a mano desde la web de AMD).
 - Perifericos: **Corsair** (iCUE 5). FanControl para ventiladores.
-- Launchers: Steam, EA app, Epic, GOG Galaxy, Ubisoft Connect, Battle.net, Xbox app, Playnite.
+- Launchers: Steam, EA app, Epic, GOG Galaxy, Ubisoft Connect, Battle.net, Xbox app, Playnite. Pendiente: Riot (falta verificar ID).
 - Usa la app de **Xbox y la Microsoft Store** para Call of Duty y Halo: ninguna optimizacion debe romperlas.
 
 ## Reglas al editar
@@ -49,6 +52,7 @@ con su driver ya instalado y Corsair conectado; en Instalar casi todo debe salir
 Cualquier app en "Fallaron" indica un ID incorrecto o un problema de la fuente.
 
 ## Ideas pendientes
+- Verificar con `winget search` los IDs de AMD Software, NVIDIA App, Intel DSA y Riot, y llenarlos.
 - Respaldar/restaurar automaticamente la config de FanControl y perfiles de iCUE.
 - Exportar `winget export` como respaldo adicional.
 - Agregar mas perifericos al menu si cambia el hardware (con su `Vid` para la deteccion).

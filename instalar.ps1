@@ -48,10 +48,12 @@ $script:perifericos = @(
     @{ Nombre = "SteelSeries GG";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038"; Detectar = 'SteelSeries GG' }
 )
 
-# Drivers de GPU (se instalan a mano desde su web)
+# Drivers de GPU. Id = ID de winget (vacio = todavia no verificado: se abre la pagina oficial).
+# Si la instalacion con winget falla, tambien se abre la pagina oficial.
 $script:drivers = @{
-    AMD    = @{ Nombre = "AMD Software (Adrenalin)"; Url = "https://www.amd.com/es/support/download/drivers.html"; Detectar = '^AMD Software|^AMD Radeon Software' }
-    NVIDIA = @{ Nombre = "NVIDIA App";               Url = "https://www.nvidia.com/es-la/software/nvidia-app/";    Detectar = '^NVIDIA app|^NVIDIA Graphics Driver' }
+    AMD    = @{ Nombre = "AMD Software (Adrenalin)";        Id = ""; Url = "https://www.amd.com/es/support/download/drivers.html";               Detectar = '^AMD Software|^AMD Radeon Software' }
+    NVIDIA = @{ Nombre = "NVIDIA App";                      Id = ""; Url = "https://www.nvidia.com/es-la/software/nvidia-app/";                  Detectar = '^NVIDIA app|^NVIDIA Graphics Driver' }
+    Intel  = @{ Nombre = "Intel Driver & Support Assistant"; Id = ""; Url = "https://www.intel.la/content/www/xl/es/support/detect.html";        Detectar = '^Intel.*Driver.*Support Assistant' }
 }
 
 # ---------- AJUSTES (todos reversibles salvo los que lo dicen) ----------
@@ -233,6 +235,7 @@ function Get-InfoPC {
     $pc.Driver = $null
     if ($pc.GPUs -match "AMD|Radeon")                { $pc.Driver = $script:drivers.AMD }
     elseif ($pc.GPUs -match "NVIDIA|GeForce|RTX|GTX") { $pc.Driver = $script:drivers.NVIDIA }
+    elseif ($pc.GPUs -match "Intel")                  { $pc.Driver = $script:drivers.Intel }
     $pc.DriverInstalado = $false
     if ($pc.Driver) { $pc.DriverInstalado = @($nombres -match $pc.Driver.Detectar).Count -gt 0 }
 
@@ -298,13 +301,15 @@ $script:xaml = @'
               <TextBlock TextWrapping="Wrap">
                 <Bold>Antes de empezar:</Bold> conecta todos tus perifericos (teclado, mouse, headset, control)
                 y presiona <Bold>Volver a escanear</Bold>, asi se detectan y se recomienda su programa.
-                Despues revisa las pestanas <Bold>Instalar</Bold> y <Bold>Optimizar</Bold>: lo recomendado ya viene marcado,
-                pero puedes marcar o desmarcar lo que quieras. Nada se instala ni cambia hasta que presiones un boton.
+                El orden es <Bold>1. Driver</Bold>, <Bold>2. Programas</Bold> y <Bold>3. Optimizar</Bold>, con un solo reinicio al final.
+                Lo recomendado ya viene marcado en cada pestana, pero puedes marcar o desmarcar lo que quieras.
+                Usa <Bold>Hacer todo lo recomendado</Bold> para correr las 3 fases seguidas, o ve pestana por pestana.
+                Nada se instala ni cambia hasta que confirmes.
               </TextBlock>
             </Border>
             <WrapPanel Margin="2">
-              <Button x:Name="BtnEscanear" Content="Volver a escanear"/>
-              <Button x:Name="BtnDriver" Content="Abrir pagina del driver" Style="{StaticResource Secundario}"/>
+              <Button x:Name="BtnTodo" Content="Hacer todo lo recomendado (1 &gt; 2 &gt; 3)" FontWeight="Bold" Padding="18,8"/>
+              <Button x:Name="BtnEscanear" Content="Volver a escanear" Style="{StaticResource Secundario}"/>
             </WrapPanel>
             <GroupBox Header="Tu PC">
               <TextBlock x:Name="TxtInfo" FontFamily="Consolas" TextWrapping="Wrap" Text="Escaneando..."/>
@@ -316,7 +321,26 @@ $script:xaml = @'
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="  Instalar  ">
+      <TabItem Header="  1. Driver  ">
+        <DockPanel Margin="4">
+          <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
+            <Button x:Name="BtnDriverPagina" DockPanel.Dock="Left" Content="Abrir pagina oficial" Style="{StaticResource Secundario}"/>
+            <Button x:Name="BtnDriverInstalar" DockPanel.Dock="Right" Content="Instalar driver"/>
+          </DockPanel>
+          <StackPanel>
+            <TextBlock Margin="8,4" Foreground="#4B5563" TextWrapping="Wrap"
+                       Text="Va primero: los juegos y algunos ajustes de Optimizar (como HAGS) dependen del driver de la tarjeta de video."/>
+            <GroupBox Header="Tarjeta de video">
+              <StackPanel>
+                <TextBlock x:Name="TxtDriver" TextWrapping="Wrap" LineHeight="22"/>
+                <CheckBox x:Name="ChkDriver" Margin="2,10,2,2" FontWeight="Bold"/>
+              </StackPanel>
+            </GroupBox>
+          </StackPanel>
+        </DockPanel>
+      </TabItem>
+
+      <TabItem Header="  2. Programas  ">
         <DockPanel Margin="4">
           <WrapPanel DockPanel.Dock="Top">
             <TextBlock Text="Selecciones:" VerticalAlignment="Center" Margin="4,0,8,0"/>
@@ -338,7 +362,7 @@ $script:xaml = @'
         </DockPanel>
       </TabItem>
 
-      <TabItem Header="  Optimizar  ">
+      <TabItem Header="  3. Optimizar  ">
         <DockPanel Margin="4">
           <WrapPanel DockPanel.Dock="Top">
             <TextBlock Text="Selecciones:" VerticalAlignment="Center" Margin="4,0,8,0"/>
@@ -375,12 +399,12 @@ function Log($texto) {
 }
 
 function Bloquear($si) {
-    foreach ($b in "BtnEscanear", "BtnDriver", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
-                   "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
+    foreach ($b in "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada",
+                   "BtnInstalar", "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$b].IsEnabled = -not $si
     }
     if (-not $si -and -not $script:pc.Winget) { $script:ui.BtnInstalar.IsEnabled = $false }
-    if (-not $si -and -not $script:pc.Driver) { $script:ui.BtnDriver.IsEnabled = $false }
+    if (-not $si -and -not $script:pc.Driver) { $script:ui.BtnDriverPagina.IsEnabled = $false; $script:ui.BtnDriverInstalar.IsEnabled = $false }
     Pump
 }
 
@@ -443,7 +467,7 @@ function Mostrar-InfoPC {
     }
     if ($pc.Driver) {
         if ($pc.DriverInstalado) { $r += "- Driver de la grafica: $($pc.Driver.Nombre) ya esta instalado. Actualizalo desde su propia app." }
-        else { $r += "- Driver de la grafica: falta $($pc.Driver.Nombre). Usa el boton 'Abrir pagina del driver'." }
+        else { $r += "- Driver de la grafica: falta $($pc.Driver.Nombre). Esta marcado en la pestana 1. Driver." }
     } else {
         $r += "- No se reconocio la marca de la grafica: instala su driver a mano."
     }
@@ -483,11 +507,12 @@ function Escanear {
     Log "Escaneando la PC (Windows, hardware, perifericos y apps instaladas). Puede tardar unos segundos..."
     $script:pc = Get-InfoPC
     Mostrar-InfoPC
+    Llenar-Driver
     Llenar-Panel $script:ui.PnlLaunchers   $script:launchers
     Llenar-Panel $script:ui.PnlUtilidades  $script:utilidades
     Llenar-Panel $script:ui.PnlPerifericos $script:perifericos
     Llenar-Panel $script:ui.PnlAjustes     $script:ajustes
-    Log "Listo. Revisa las pestanas Instalar y Optimizar."
+    Log "Listo. Revisa las pestanas 1. Driver, 2. Programas y 3. Optimizar, o usa 'Hacer todo lo recomendado'."
     Bloquear $false
 }
 
@@ -522,69 +547,153 @@ function Confirmar($texto) {
     return $r -eq "Yes"
 }
 
+function Llenar-Driver {
+    $pc = $script:pc; $ui = $script:ui
+    $gpus = $pc.GPUs -join ', '
+    if (-not $pc.Driver) {
+        $ui.TxtDriver.Text = "Tarjeta de video: $gpus`nNo se reconocio la marca (AMD, NVIDIA o Intel). Instala su driver a mano desde la pagina del fabricante."
+        $ui.ChkDriver.Content = "Sin driver para instalar"
+        $ui.ChkDriver.IsChecked = $false
+        $ui.ChkDriver.IsEnabled = $false
+        return
+    }
+    $estado = if ($pc.DriverInstalado) { "ya instalado. Para actualizarlo usa su propia app." } else { "NO instalado." }
+    $como = if ($pc.Driver.Id) { "Se instala automaticamente con winget; si falla, se abre su pagina oficial." }
+            else { "Se abre su pagina oficial para descargarlo e instalarlo (el instalador te guia)." }
+    $ui.TxtDriver.Text = "Tarjeta de video: $gpus`nDriver recomendado: $($pc.Driver.Nombre)`nEstado: $estado`n$como"
+    $ui.ChkDriver.Content = "Instalar $($pc.Driver.Nombre)" + $(if ($pc.DriverInstalado) { "   (ya instalado)" } else { "   (recomendado)" })
+    $ui.ChkDriver.IsChecked = -not $pc.DriverInstalado
+    $ui.ChkDriver.IsEnabled = $true
+}
+
+function Abrir-PaginaDriver {
+    $d = $script:pc.Driver
+    Log "Abriendo la pagina oficial de $($d.Nombre)..."
+    try { Start-Process $d.Url } catch { Log "  No se pudo abrir, entra a mano: $($d.Url)" }
+}
+
+# Fase 1. Devuelve $true si el driver quedo para instalar a mano desde la pagina.
+function Fase-Driver {
+    $d = $script:pc.Driver
+    Log "===== FASE 1: DRIVER DE VIDEO ====="
+    if ($d.Id) {
+        if ((Instalar-App $d) -ne "fallo") { return $false }
+        Log "  No se pudo con winget."
+    }
+    Abrir-PaginaDriver
+    return $true
+}
+
+function Fase-Programas($sel) {
+    Log "===== FASE 2: PROGRAMAS ====="
+    $res = @{ ok = @(); yaEstaba = @(); fallo = @() }
+    foreach ($app in $sel) { $res[(Instalar-App $app)] += $app.Nombre }
+    Log "Instaladas ($($res.ok.Count)): $($res.ok -join ', ')"
+    if ($res.yaEstaba.Count) { Log "Ya estaban ($($res.yaEstaba.Count)): $($res.yaEstaba -join ', ')" }
+    if ($res.fallo.Count)    { Log "Fallaron ($($res.fallo.Count)): $($res.fallo -join ', ') -> vuelve a intentar o instalalas a mano." }
+}
+
+function Fase-Optimizar($sel) {
+    Log "===== FASE 3: OPTIMIZAR ====="
+    foreach ($aj in $sel) {
+        Log "Aplicando: $($aj.Nombre)..."
+        try { & $aj.Aplicar; Log "  OK" } catch { Log "  ERROR: $($_.Exception.Message)" }
+    }
+}
+
+function Apps-Marcadas { @(($script:launchers + $script:utilidades + $script:perifericos) | Where-Object { $_.Check.IsChecked }) }
+function Ajustes-Marcados { @($script:ajustes | Where-Object { $_.Check.IsChecked }) }
+function Lista($items) { ($items | ForEach-Object { "  - $($_.Nombre)" }) -join "`n" }
+function Aviso($texto) { [System.Windows.MessageBox]::Show($texto, "PC Gamer") | Out-Null }
+
+function Ofrecer-Reinicio {
+    if (Confirmar "Para terminar hay que REINICIAR la PC.`n`nGuarda lo que tengas abierto. Reiniciar ahora?") {
+        Log "Reiniciando..."
+        Restart-Computer -Force
+    } else {
+        Log "Recuerda reiniciar la PC para que todo tenga efecto."
+    }
+}
+
 function Conectar-Eventos {
     $ui = $script:ui
 
     $ui.BtnEscanear.Add_Click({ Escanear })
-
-    $ui.BtnDriver.Add_Click({
-        if ($script:pc.Driver) {
-            Log "Abriendo la pagina de $($script:pc.Driver.Nombre)..."
-            try { Start-Process $script:pc.Driver.Url } catch { Log "  No se pudo abrir: $($script:pc.Driver.Url)" }
-        }
-    })
+    $ui.BtnDriverPagina.Add_Click({ if ($script:pc.Driver) { Abrir-PaginaDriver } })
 
     $ui.BtnAppsRec.Add_Click({ Marcar ($script:launchers + $script:utilidades + $script:perifericos) $true })
     $ui.BtnAppsNada.Add_Click({ Marcar ($script:launchers + $script:utilidades + $script:perifericos) $false })
     $ui.BtnAjRec.Add_Click({ Marcar $script:ajustes $true })
     $ui.BtnAjNada.Add_Click({ Marcar $script:ajustes $false })
 
-    $ui.BtnInstalar.Add_Click({
-        $sel = @(($script:launchers + $script:utilidades + $script:perifericos) | Where-Object { $_.Check.IsChecked })
-        if (-not $sel.Count) { [System.Windows.MessageBox]::Show("No marcaste ninguna app.", "PC Gamer") | Out-Null; return }
-        $lista = ($sel | ForEach-Object { "  - $($_.Nombre)" }) -join "`n"
-        if (-not (Confirmar "Se van a instalar $($sel.Count) apps:`n`n$lista`n`nPuedes dejar la PC sola mientras instala. Continuar?")) { return }
+    $ui.BtnTodo.Add_Click({
+        $driver = $script:pc.Driver -and $script:ui.ChkDriver.IsChecked
+        $apps = @(Apps-Marcadas)
+        $ajs = @(Ajustes-Marcados)
+        if (-not $driver -and -not $apps.Count -and -not $ajs.Count) { Aviso "No hay nada marcado en las pestanas 1, 2 y 3."; return }
+        $t = "Se va a hacer, en este orden:`n`n"
+        $t += "1. DRIVER: " + $(if ($driver) { $script:pc.Driver.Nombre } else { "nada" }) + "`n`n"
+        $t += "2. PROGRAMAS ($($apps.Count)):" + $(if ($apps.Count) { "`n" + (Lista $apps) } else { " nada" }) + "`n`n"
+        $t += "3. OPTIMIZAR ($($ajs.Count)):" + $(if ($ajs.Count) { "`n" + (Lista $ajs) } else { " nada" }) + "`n`n"
+        $t += "Puedes dejar la PC sola mientras instala. Continuar?"
+        if (-not (Confirmar $t)) { return }
 
         Bloquear $true
-        $res = @{ ok = @(); yaEstaba = @(); fallo = @() }
-        foreach ($app in $sel) { $res[(Instalar-App $app)] += $app.Nombre }
-        Log "----- RESULTADO -----"
-        Log "Instaladas ($($res.ok.Count)): $($res.ok -join ', ')"
-        if ($res.yaEstaba.Count) { Log "Ya estaban ($($res.yaEstaba.Count)): $($res.yaEstaba -join ', ')" }
-        if ($res.fallo.Count)    { Log "Fallaron ($($res.fallo.Count)): $($res.fallo -join ', ') -> vuelve a intentar o instalalas a mano." }
+        if ($driver) {
+            if (Fase-Driver) {
+                Aviso "Se abrio la pagina oficial de $($script:pc.Driver.Nombre).`n`nDescarga e instala el driver (si pide reiniciar, elige 'mas tarde').`nCuando termine, presiona Aceptar para seguir con los programas."
+            }
+        }
+        if ($apps.Count) { Fase-Programas $apps }
+        if ($ajs.Count)  { Fase-Optimizar $ajs }
+        Log "===== LISTO ====="
+        Log "Pendiente a mano: juegos desde cada launcher, Black Myth Wukong, perfiles de iCUE y FanControl."
+        Bloquear $false
+        Escanear
+        if ($driver -or $ajs.Count) { Ofrecer-Reinicio }
+    })
+
+    $ui.BtnDriverInstalar.Add_Click({
+        if (-not $script:ui.ChkDriver.IsChecked) { Aviso "Marca la casilla del driver para instalarlo."; return }
+        if (-not (Confirmar "Instalar $($script:pc.Driver.Nombre)?")) { return }
+        Bloquear $true
+        if (Fase-Driver) { Log "Descarga e instala el driver desde la pagina que se abrio, y luego sigue con 2. Programas." }
+        Bloquear $false
+        Escanear
+    })
+
+    $ui.BtnInstalar.Add_Click({
+        $sel = @(Apps-Marcadas)
+        if (-not $sel.Count) { Aviso "No marcaste ninguna app."; return }
+        if (-not (Confirmar "Se van a instalar $($sel.Count) apps:`n`n$(Lista $sel)`n`nPuedes dejar la PC sola mientras instala. Continuar?")) { return }
+        Bloquear $true
+        Fase-Programas $sel
         Log "Pendiente a mano: juegos desde cada launcher, Black Myth Wukong, perfiles de iCUE y FanControl."
         Bloquear $false
         Escanear
     })
 
     $ui.BtnAplicar.Add_Click({
-        $sel = @($script:ajustes | Where-Object { $_.Check.IsChecked })
-        if (-not $sel.Count) { [System.Windows.MessageBox]::Show("No marcaste ningun ajuste.", "PC Gamer") | Out-Null; return }
-        $lista = ($sel | ForEach-Object { "  - $($_.Nombre)" }) -join "`n"
-        if (-not (Confirmar "Se van a aplicar $($sel.Count) ajustes:`n`n$lista`n`nContinuar?")) { return }
-
+        $sel = @(Ajustes-Marcados)
+        if (-not $sel.Count) { Aviso "No marcaste ningun ajuste."; return }
+        if (-not (Confirmar "Se van a aplicar $($sel.Count) ajustes:`n`n$(Lista $sel)`n`nContinuar?")) { return }
         Bloquear $true
-        foreach ($aj in $sel) {
-            Log "Aplicando: $($aj.Nombre)..."
-            try { & $aj.Aplicar; Log "  OK" } catch { Log "  ERROR: $($_.Exception.Message)" }
-        }
-        Log "Ajustes aplicados. REINICIA la PC para que todos tengan efecto."
+        Fase-Optimizar $sel
         Bloquear $false
+        Ofrecer-Reinicio
     })
 
     $ui.BtnRevertir.Add_Click({
         $sel = @($script:ajustes | Where-Object { $_.Check.IsChecked -and $_.Revertir })
-        if (-not $sel.Count) { [System.Windows.MessageBox]::Show("No marcaste ningun ajuste que se pueda revertir.", "PC Gamer") | Out-Null; return }
-        $lista = ($sel | ForEach-Object { "  - $($_.Nombre)" }) -join "`n"
-        if (-not (Confirmar "Se van a revertir (volver a como viene Windows) $($sel.Count) ajustes:`n`n$lista`n`nContinuar?")) { return }
-
+        if (-not $sel.Count) { Aviso "No marcaste ningun ajuste que se pueda revertir."; return }
+        if (-not (Confirmar "Se van a revertir (volver a como viene Windows) $($sel.Count) ajustes:`n`n$(Lista $sel)`n`nContinuar?")) { return }
         Bloquear $true
         foreach ($aj in $sel) {
             Log "Revirtiendo: $($aj.Nombre)..."
             try { & $aj.Revertir; Log "  OK" } catch { Log "  ERROR: $($_.Exception.Message)" }
         }
-        Log "Listo. REINICIA la PC para que todo vuelva a la normalidad."
         Bloquear $false
+        Ofrecer-Reinicio
     })
 
     $ui.BtnWinUtil.Add_Click({
@@ -620,8 +729,8 @@ function Main {
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))
     $script:ui = @{}
-    foreach ($n in "Log", "TxtInfo", "TxtRecom", "PnlLaunchers", "PnlUtilidades", "PnlPerifericos", "PnlAjustes",
-                   "BtnEscanear", "BtnDriver", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
+    foreach ($n in "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlPerifericos", "PnlAjustes",
+                   "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
                    "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$n] = $script:window.FindName($n)
     }
