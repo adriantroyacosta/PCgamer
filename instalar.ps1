@@ -349,7 +349,7 @@ $script:xaml = @'
           </WrapPanel>
           <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
             <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Margin="6,0" Foreground="#4B5563"
-                       Text="(ya instalado) = ya esta en tu PC.  (recomendado) = falta o se detecto conectado."/>
+                       Text="&#x2714; verde = ya esta instalado en tu PC.   Marcado = recomendado (falta o se detecto conectado)."/>
             <Button x:Name="BtnInstalar" DockPanel.Dock="Right" Content="Instalar seleccionados"/>
           </DockPanel>
           <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -408,18 +408,41 @@ function Bloquear($si) {
     Pump
 }
 
+# Contenido de una casilla: nombre + check verde si ya esta instalado, o una nota gris
+function Nuevo-Contenido($nombre, $instalado, $nota) {
+    $sp = New-Object System.Windows.Controls.StackPanel
+    $sp.Orientation = "Horizontal"
+    $t = New-Object System.Windows.Controls.TextBlock
+    $t.Text = $nombre
+    [void]$sp.Children.Add($t)
+    if ($instalado) {
+        $ok = New-Object System.Windows.Controls.TextBlock
+        $ok.Text = [string][char]0x2714
+        $ok.Foreground = (New-Object System.Windows.Media.BrushConverter).ConvertFromString("#16A34A")
+        $ok.FontWeight = [System.Windows.FontWeights]::Bold
+        $ok.Margin = New-Object System.Windows.Thickness 8, 0, 0, 0
+        $ok.ToolTip = "Ya instalado"
+        [void]$sp.Children.Add($ok)
+    } elseif ($nota) {
+        $n = New-Object System.Windows.Controls.TextBlock
+        $n.Text = $nota
+        $n.Foreground = [Windows.Media.Brushes]::Gray
+        $n.Margin = New-Object System.Windows.Thickness 8, 0, 0, 0
+        [void]$sp.Children.Add($n)
+    }
+    return $sp
+}
+
 function Llenar-Panel($panel, $items) {
     $panel.Children.Clear()
     foreach ($it in $items) {
         $cb = New-Object System.Windows.Controls.CheckBox
-        $texto = $it.Nombre
-        if ($it.Instalado)       { $texto += "   (ya instalado)" }
-        elseif ($it.Conectado)   { $texto += "   (conectado - recomendado)" }
-        elseif ($it.Recomendado -and $it.Aplicar) { $texto += "   (recomendado)" }
-        $cb.Content = $texto
+        $nota = $null
+        if ($it.Conectado) { $nota = "(conectado - recomendado)" }
+        elseif ($it.Recomendado -and $it.Aplicar) { $nota = "(recomendado)" }
+        $cb.Content = Nuevo-Contenido $it.Nombre $it.Instalado $nota
         $cb.IsChecked = [bool]$it.Recomendado
-        if ($it.Desc) { $cb.ToolTip = $it.Desc }
-        if ($it.Instalado) { $cb.Foreground = [Windows.Media.Brushes]::Gray }
+        if ($it.Desc) { $cb.ToolTip = $it.Desc } elseif ($it.Instalado) { $cb.ToolTip = "Ya instalado" }
         $it.Check = $cb
         [void]$panel.Children.Add($cb)
     }
@@ -561,7 +584,8 @@ function Llenar-Driver {
     $como = if ($pc.Driver.Id) { "Se instala automaticamente con winget; si falla, se abre su pagina oficial." }
             else { "Se abre su pagina oficial para descargarlo e instalarlo (el instalador te guia)." }
     $ui.TxtDriver.Text = "Tarjeta de video: $gpus`nDriver recomendado: $($pc.Driver.Nombre)`nEstado: $estado`n$como"
-    $ui.ChkDriver.Content = "Instalar $($pc.Driver.Nombre)" + $(if ($pc.DriverInstalado) { "   (ya instalado)" } else { "   (recomendado)" })
+    $nota = if ($pc.DriverInstalado) { $null } else { "(recomendado)" }
+    $ui.ChkDriver.Content = Nuevo-Contenido "Instalar $($pc.Driver.Nombre)" $pc.DriverInstalado $nota
     $ui.ChkDriver.IsChecked = -not $pc.DriverInstalado
     $ui.ChkDriver.IsEnabled = $true
 }
