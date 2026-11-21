@@ -40,7 +40,7 @@ Funciona como un asistente: **no instala nada al arrancar**.
 ## Agregar o quitar apps
 Edita las listas al inicio de `instalar.ps1`:
 - Quitar: pon `#` al inicio de la linea.
-- Agregar: busca el ID con `winget search nombre` y copia una linea cambiando `Nombre` e `Id`.
+- Agregar: busca el ID con `winget search nombre` y copia una linea cambiando `Nombre` e `Id`, y `Detectar`: el nombre con que aparece en *Agregar o quitar programas* (o el nombre del paquete de la Store, se ve con `Get-AppxPackage *nombre*`). Asi el script sabe si ya esta instalada aunque la hayas instalado desde su web o la Store.
 - Perifericos de otra marca: agrega tambien `Marca` y `Vid` (ID de fabricante USB, se ve en Administrador de dispositivos > Detalles > Id. de hardware).
 - Apps de Microsoft Store: agrega `Fuente = "msstore"`.
 

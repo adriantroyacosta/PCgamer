@@ -15,34 +15,36 @@ $UrlScript = "https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/in
 # ---------- LISTAS DE APPS ----------
 
 $launchers = @(
-    @{ Nombre = "Steam";            Id = "Valve.Steam" },
-    @{ Nombre = "EA app";           Id = "ElectronicArts.EADesktop" },
-    @{ Nombre = "Epic Games";       Id = "EpicGames.EpicGamesLauncher" },
-    @{ Nombre = "GOG Galaxy";       Id = "GOG.Galaxy" },
-    @{ Nombre = "Ubisoft Connect";  Id = "Ubisoft.Connect" },
-    @{ Nombre = "Battle.net";       Id = "Blizzard.BattleNet" },
-    @{ Nombre = "Xbox";             Id = "9MV0B5HZVK9Z"; Fuente = "msstore" },
-    @{ Nombre = "Playnite";         Id = "Playnite.Playnite" }
+    @{ Nombre = "Steam";            Id = "Valve.Steam"; Detectar = '^Steam$' },
+    @{ Nombre = "EA app";           Id = "ElectronicArts.EADesktop"; Detectar = '^EA app$' },
+    @{ Nombre = "Epic Games";       Id = "EpicGames.EpicGamesLauncher"; Detectar = 'Epic Games Launcher' },
+    @{ Nombre = "GOG Galaxy";       Id = "GOG.Galaxy"; Detectar = 'GOG GALAXY' },
+    @{ Nombre = "Ubisoft Connect";  Id = "Ubisoft.Connect"; Detectar = 'Ubisoft Connect' },
+    @{ Nombre = "Battle.net";       Id = "Blizzard.BattleNet"; Detectar = '^Battle\.net$' },
+    @{ Nombre = "Xbox";             Id = "9MV0B5HZVK9Z"; Fuente = "msstore"; Detectar = '^Microsoft\.GamingApp$' },
+    @{ Nombre = "Playnite";         Id = "Playnite.Playnite"; Detectar = '^Playnite' }
 )
 
 $utilidades = @(
-    @{ Nombre = "Google Chrome";    Id = "Google.Chrome" },
-    @{ Nombre = "WinRAR";           Id = "RARLab.WinRAR" },
-    @{ Nombre = "Transmission";     Id = "Transmission.Transmission" },
-    @{ Nombre = "VirtualBox";       Id = "Oracle.VirtualBox" },
-    @{ Nombre = "iTunes";           Id = "9PB2MZ1ZMB1S"; Fuente = "msstore" },
-    @{ Nombre = "PC Manager";       Id = "9PM860492SZD"; Fuente = "msstore" },
-    @{ Nombre = "Terminal Windows"; Id = "Microsoft.WindowsTerminal" },
-    @{ Nombre = "FanControl";       Id = "Rem0o.FanControl" },
-    @{ Nombre = "Dolby Access";     Id = "9N0866FS04W8"; Fuente = "msstore" }
+    @{ Nombre = "Google Chrome";    Id = "Google.Chrome"; Detectar = '^Google Chrome$' },
+    @{ Nombre = "WinRAR";           Id = "RARLab.WinRAR"; Detectar = '^WinRAR' },
+    @{ Nombre = "Transmission";     Id = "Transmission.Transmission"; Detectar = '^Transmission' },
+    @{ Nombre = "VirtualBox";       Id = "Oracle.VirtualBox"; Detectar = 'VirtualBox' },
+    @{ Nombre = "iTunes";           Id = "9PB2MZ1ZMB1S"; Fuente = "msstore"; Detectar = '^iTunes$|^AppleInc\.iTunes$' },
+    @{ Nombre = "PC Manager";       Id = "9PM860492SZD"; Fuente = "msstore"; Detectar = '^PC Manager$|^Microsoft\.MicrosoftPCManager$' },
+    @{ Nombre = "Terminal Windows"; Id = "Microsoft.WindowsTerminal"; Detectar = '^Microsoft\.WindowsTerminal$' },
+    @{ Nombre = "FanControl";       Id = "Rem0o.FanControl"; Detectar = '^Fan ?Control' },
+    @{ Nombre = "Dolby Access";     Id = "9N0866FS04W8"; Fuente = "msstore"; Detectar = '^Dolby Access$|^DolbyLaboratories\.DolbyAccess$' }
 )
 
 # Vid = ID de fabricante USB, para detectar si hay un periferico de esa marca conectado
+# Detectar (en todas las listas) = nombre de la app en Windows (Agregar o quitar programas o
+# nombre del paquete de la Store). Sirve aunque la app se haya instalado desde su web o la Store.
 $perifericos = @(
-    @{ Nombre = "Corsair iCUE 5";   Id = "Corsair.iCUE.5";          Marca = "Corsair";     Vid = "1B1C" },
-    @{ Nombre = "Logitech G HUB";   Id = "Logitech.GHUB";           Marca = "Logitech";    Vid = "046D" },
-    @{ Nombre = "Razer Synapse";    Id = "RazerInc.RazerInstaller"; Marca = "Razer";       Vid = "1532" },
-    @{ Nombre = "SteelSeries GG";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038" }
+    @{ Nombre = "Corsair iCUE 5";   Id = "Corsair.iCUE.5";          Marca = "Corsair";     Vid = "1B1C"; Detectar = '^iCUE|^Corsair iCUE ?5? ?Software' },
+    @{ Nombre = "Logitech G HUB";   Id = "Logitech.GHUB";           Marca = "Logitech";    Vid = "046D"; Detectar = 'Logitech G HUB' },
+    @{ Nombre = "Razer Synapse";    Id = "RazerInc.RazerInstaller"; Marca = "Razer";       Vid = "1532"; Detectar = 'Razer Synapse' },
+    @{ Nombre = "SteelSeries GG";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038"; Detectar = 'SteelSeries GG' }
 )
 
 # ---------- FUNCIONES ----------
@@ -103,6 +105,19 @@ function Get-InfoWindows {
         Version = $version
         Build   = [int]$os.BuildNumber
     }
+}
+
+# Nombres de todo lo instalado: programas (Agregar o quitar programas) y apps de la Store
+function Get-NombresInstalados {
+    $rutas = @(
+        "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*",
+        "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+    )
+    $nombres = @(Get-ItemProperty $rutas -ErrorAction SilentlyContinue |
+        ForEach-Object { $_.DisplayName } | Where-Object { $_ })
+    $nombres += @(Get-AppxPackage -ErrorAction SilentlyContinue | ForEach-Object { $_.Name })
+    return $nombres
 }
 
 # Devuelve los IDs de winget de todo lo instalado (vacio si no se pudo leer)
@@ -246,8 +261,11 @@ function Main {
     # Apps ya instaladas
     Write-Host "  Revisando apps ya instaladas (puede tardar unos segundos)..." -ForegroundColor Gray
     $instaladas = @(Get-AppsInstaladas)
+    $nombresInstalados = @(Get-NombresInstalados)
     foreach ($app in ($launchers + $utilidades + $perifericos)) {
-        $app.Instalado = $instaladas -contains $app.Id
+        $porId     = $instaladas -contains $app.Id
+        $porNombre = @($nombresInstalados -match $app.Detectar).Count -gt 0
+        $app.Instalado = $porId -or $porNombre
     }
     $cuantas = @(($launchers + $utilidades + $perifericos) | Where-Object { $_.Instalado }).Count
     Write-Host "  Apps de la lista ya instaladas: $cuantas"

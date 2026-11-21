@@ -31,6 +31,9 @@ Proyecto personal: no tiene relacion con trabajo.
 - No usar `$args` como nombre de variable (es automatica en PowerShell).
 - Verificar IDs de winget con `winget search` o `winget show --id X -e` antes de agregarlos.
 - Apps de la Store: `Fuente = "msstore"` con el ID de la Store.
+- Cada app lleva `Detectar` (regex sobre DisplayName del registro Uninstall o Name de `Get-AppxPackage`).
+  No confiar solo en `winget export`: omite apps instaladas desde la Store o su web (ej. Epic y GOG de la Store
+  tienen IDs `XP...`, y Xbox, Chrome, WinRAR, iTunes no salen).
 - WinUtil: usar solo el preset **Standard**. Nunca Advanced (quita OneDrive, desactiva busqueda de la Store, etc.).
 - No incluir: driver Bluetooth ASUS USB-BT500 ni librerias (Visual C++, DirectX, .NET): el usuario decidio dejarlas fuera.
 - Cualquier ajuste del sistema debe ser reversible y estar explicado en `docs/optimizacion.md`.
