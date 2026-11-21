@@ -1,28 +1,37 @@
 # PCgamer
 
-Instalador post-formateo para mi PC gamer. Una ventana estilo WinUtil: analiza la PC, recomienda apps y ajustes segun el hardware y los perifericos conectados, y yo marco lo que quiero instalar (con **winget**) u optimizar.
+## Empezar (copia y pega una linea)
 
-## Uso rapido
-
-### Opcion A: directo desde GitHub (recomendado, PC recien formateada)
-Abre **PowerShell** (no hace falta como administrador) y pega:
+**PowerShell** (clic derecho en Inicio > Terminal, o busca "PowerShell"):
 
 ```powershell
 irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex
 ```
 
-O desde **CMD** (Simbolo del sistema):
+**CMD** (busca "cmd" o "Simbolo del sistema"):
 
 ```cmd
 powershell -c "irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex"
 ```
 
-Windows pide permiso de administrador (acepta) y se abre la ventana del instalador; la consola de administrador
-queda oculta. La ventana donde pegaste la linea ya se puede cerrar.
+1. Pega la linea y presiona Enter. No hace falta abrirlo como administrador.
+2. Acepta el permiso de administrador que pide Windows.
+3. Se abre la ventana del instalador: conecta tus perifericos y presiona **Comenzar analisis**.
 
-### Opcion B: sin internet, desde el USB o la carpeta descargada
-1. Copia `INSTALAR.bat` e `instalar.ps1` a la misma carpeta.
+La ventana donde pegaste la linea ya se puede cerrar. Si falta winget, el instalador lo instala solo.
+
+---
+
+Instalador post-formateo para mi PC gamer. Una ventana estilo WinUtil: analiza la PC, recomienda apps y ajustes segun el hardware y los perifericos conectados, y yo marco lo que quiero instalar (con **winget**) u optimizar.
+
+## Otras formas de abrirlo
+
+### Con doble clic (USB o carpeta descargada)
+1. Copia `INSTALAR.bat` (y si quieres `instalar.ps1`) a una carpeta o USB.
 2. Doble clic en `INSTALAR.bat` y acepta el permiso de administrador.
+
+Si `instalar.ps1` esta en la misma carpeta usa esa copia (sirve sin internet para ver el analisis);
+si no, descarga la ultima version de GitHub.
 
 ## Como funciona
 

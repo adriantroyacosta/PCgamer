@@ -21,11 +21,13 @@ Proyecto personal: no tiene relacion con trabajo.
   Se publica en GitHub y se ejecuta con `irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex`.
   No usar `exit` (cerraria la ventana del usuario con `iex`): salir de `Main` con `return`.
   winget se corre con `Start-Process -PassThru` y un bucle que llama `Pump` para que la ventana no se congele.
-- `INSTALAR.bat`: lanzador sin internet; pide administrador y ejecuta `instalar.ps1` con ExecutionPolicy Bypass.
+- `INSTALAR.bat`: lanzador de doble clic; pide administrador y ejecuta `instalar.ps1` de la misma carpeta, o si no
+  esta, la version de GitHub.
+- `README.md`: empieza con las lineas para PowerShell y CMD; mantenerlas arriba de todo.
 - `docs/superpowers/specs/`: documentos de diseno.
 - `docs/apps.md`: inventario de las apps actuales y como se reinstala cada una (fuente de verdad de la lista).
 - `docs/antes-de-formatear.md`: checklist de respaldo.
-- `docs/optimizacion.md`: detalle del paso 5.
+- `docs/optimizacion.md`: detalle de la pestana 3. Optimizar.
 
 ## Hardware y apps del usuario
 - GPU **AMD** (driver AMD Software / Adrenalin, se instala a mano desde la web de AMD).
@@ -56,7 +58,7 @@ Proyecto personal: no tiene relacion con trabajo.
 
 ## Como probar
 En la PC actual (con todo instalado) correr el one-liner o `INSTALAR.bat`: Mi PC debe mostrar Windows 11, la GPU AMD
-con su driver ya instalado y Corsair conectado; en Instalar casi todo debe salir "(ya instalado)" y sin marcar.
+con su driver ya instalado y Corsair conectado; en 2. Programas casi todo debe salir con check verde y sin marcar.
 Cualquier app en "Fallaron" indica un ID incorrecto o un problema de la fuente.
 
 ## Ideas pendientes
