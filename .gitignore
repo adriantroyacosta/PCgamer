@@ -1,0 +1,10 @@
+# Respaldos locales (no subir)
+respaldo/
+*.zip
+misapps.json
+mis-apps.txt
+
+# Windows / editores
+Thumbs.db
+desktop.ini
+.vscode/
