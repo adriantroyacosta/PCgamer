@@ -12,6 +12,8 @@ Proyecto personal: no tiene relacion con trabajo.
   Revertir), deteccion (`Get-InfoPC`), ventana (XAML + `Conectar-Eventos`) y `Main` (auto-elevacion y ShowDialog).
   Pestanas en orden de fases: Mi PC, 1. Driver, 2. Programas, 3. Optimizar (`Fase-Driver`, `Fase-Programas`,
   `Fase-Optimizar`); el boton "Hacer todo lo recomendado" las corre seguidas y ofrece reiniciar una sola vez.
+  Pestana Progreso: `Iniciar-Progreso`, `Empezar-Item`, `Terminar-Item`, `Terminar-Progreso`. Cada app tiene `Web`
+  (dominio oficial) para su icono, via el servicio de favicons de Google.
   En `$drivers`, `Id` vacio = ID de winget no verificado todavia (se abre la pagina oficial).
   Se publica en GitHub y se ejecuta con `irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex`.
   No usar `exit` (cerraria la ventana del usuario con `iex`): salir de `Main` con `return`.

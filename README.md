@@ -29,7 +29,10 @@ Se abre una ventana con pestanas en el orden logico para dejar la PC lista para 
 | **2. Programas** | Launchers, utilidades y programas de perifericos con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado sale como *(ya instalado)*. |
 | **3. Optimizar** | Ajustes con casillas y explicacion al pasar el mouse, recomendados segun tu PC. Va al final para que el punto de restauracion guarde la PC con todo instalado. Botones *Aplicar*, *Revertir* y *Abrir WinUtil (opcional)*. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
 
-Abajo hay un registro con lo que va haciendo y el resultado (instaladas / ya estaban / fallaron).
+| **Progreso** | Se abre sola al instalar o aplicar: barra de avance, "Instalando 3 de 9: Steam" y una fila por cada cosa con su icono y estado (En espera, Instalando..., Instalado, Ya estaba, Fallo). Al terminar queda el resumen completo. |
+
+Cada app muestra el icono de su sitio oficial (se descarga al abrir; sin internet se ve sin icono). Lo que ya esta instalado
+lleva un check verde. Abajo hay un registro con el detalle de todo lo que va haciendo.
 
 ## Agregar o quitar apps
 Edita las listas al inicio de `instalar.ps1`:

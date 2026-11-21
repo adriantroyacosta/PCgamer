@@ -18,42 +18,43 @@ $UrlScript = "https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/in
 # ---------- LISTAS DE APPS ----------
 
 $script:launchers = @(
-    @{ Nombre = "Steam";            Id = "Valve.Steam";                 Detectar = '^Steam$' },
-    @{ Nombre = "EA app";           Id = "ElectronicArts.EADesktop";    Detectar = '^EA app$' },
-    @{ Nombre = "Epic Games";       Id = "EpicGames.EpicGamesLauncher"; Detectar = 'Epic Games Launcher' },
-    @{ Nombre = "GOG Galaxy";       Id = "GOG.Galaxy";                  Detectar = 'GOG GALAXY' },
-    @{ Nombre = "Ubisoft Connect";  Id = "Ubisoft.Connect";             Detectar = 'Ubisoft Connect' },
-    @{ Nombre = "Battle.net";       Id = "Blizzard.BattleNet";          Detectar = '^Battle\.net$' },
-    @{ Nombre = "Xbox";             Id = "9MV0B5HZVK9Z"; Fuente = "msstore"; Detectar = '^Microsoft\.GamingApp$' },
-    @{ Nombre = "Playnite";         Id = "Playnite.Playnite";           Detectar = '^Playnite' }
+    @{ Nombre = "Steam"; Web = "steampowered.com";            Id = "Valve.Steam";                 Detectar = '^Steam$' },
+    @{ Nombre = "EA app"; Web = "ea.com";           Id = "ElectronicArts.EADesktop";    Detectar = '^EA app$' },
+    @{ Nombre = "Epic Games"; Web = "epicgames.com";       Id = "EpicGames.EpicGamesLauncher"; Detectar = 'Epic Games Launcher' },
+    @{ Nombre = "GOG Galaxy"; Web = "gog.com";       Id = "GOG.Galaxy";                  Detectar = 'GOG GALAXY' },
+    @{ Nombre = "Ubisoft Connect"; Web = "ubisoft.com";  Id = "Ubisoft.Connect";             Detectar = 'Ubisoft Connect' },
+    @{ Nombre = "Battle.net"; Web = "battle.net";       Id = "Blizzard.BattleNet";          Detectar = '^Battle\.net$' },
+    @{ Nombre = "Xbox"; Web = "xbox.com";             Id = "9MV0B5HZVK9Z"; Fuente = "msstore"; Detectar = '^Microsoft\.GamingApp$' },
+    @{ Nombre = "Playnite"; Web = "playnite.link";         Id = "Playnite.Playnite";           Detectar = '^Playnite' }
 )
 
 $script:utilidades = @(
-    @{ Nombre = "Google Chrome";    Id = "Google.Chrome";               Detectar = '^Google Chrome$' },
-    @{ Nombre = "WinRAR";           Id = "RARLab.WinRAR";               Detectar = '^WinRAR' },
-    @{ Nombre = "Transmission";     Id = "Transmission.Transmission";   Detectar = '^Transmission' },
-    @{ Nombre = "VirtualBox";       Id = "Oracle.VirtualBox";           Detectar = 'VirtualBox' },
-    @{ Nombre = "iTunes";           Id = "9PB2MZ1ZMB1S"; Fuente = "msstore"; Detectar = '^iTunes$|^AppleInc\.iTunes$' },
-    @{ Nombre = "PC Manager";       Id = "9PM860492SZD"; Fuente = "msstore"; Detectar = '^PC Manager$|^Microsoft\.MicrosoftPCManager$' },
-    @{ Nombre = "Terminal Windows"; Id = "Microsoft.WindowsTerminal";   Detectar = '^Microsoft\.WindowsTerminal$' },
-    @{ Nombre = "FanControl";       Id = "Rem0o.FanControl";            Detectar = '^Fan ?Control' },
-    @{ Nombre = "Dolby Access";     Id = "9N0866FS04W8"; Fuente = "msstore"; Detectar = '^Dolby Access$|^DolbyLaboratories\.DolbyAccess$' }
+    @{ Nombre = "Google Chrome"; Web = "chrome.com";    Id = "Google.Chrome";               Detectar = '^Google Chrome$' },
+    @{ Nombre = "WinRAR"; Web = "win-rar.com";           Id = "RARLab.WinRAR";               Detectar = '^WinRAR' },
+    @{ Nombre = "Transmission"; Web = "transmissionbt.com";     Id = "Transmission.Transmission";   Detectar = '^Transmission' },
+    @{ Nombre = "VirtualBox"; Web = "virtualbox.org";       Id = "Oracle.VirtualBox";           Detectar = 'VirtualBox' },
+    @{ Nombre = "iTunes"; Web = "apple.com";           Id = "9PB2MZ1ZMB1S"; Fuente = "msstore"; Detectar = '^iTunes$|^AppleInc\.iTunes$' },
+    @{ Nombre = "PC Manager"; Web = "pcmanager.microsoft.com";       Id = "9PM860492SZD"; Fuente = "msstore"; Detectar = '^PC Manager$|^Microsoft\.MicrosoftPCManager$' },
+    @{ Nombre = "Terminal Windows"; Web = "microsoft.com"; Id = "Microsoft.WindowsTerminal";   Detectar = '^Microsoft\.WindowsTerminal$' },
+    @{ Nombre = "FanControl"; Web = "getfancontrol.com";       Id = "Rem0o.FanControl";            Detectar = '^Fan ?Control' },
+    @{ Nombre = "Dolby Access"; Web = "dolby.com";     Id = "9N0866FS04W8"; Fuente = "msstore"; Detectar = '^Dolby Access$|^DolbyLaboratories\.DolbyAccess$' }
 )
 
+# Web = dominio oficial, solo para mostrar su icono en la ventana
 # Vid = ID de fabricante USB, para detectar si hay un periferico de esa marca conectado
 $script:perifericos = @(
-    @{ Nombre = "Corsair iCUE 5";   Id = "Corsair.iCUE.5";          Marca = "Corsair";     Vid = "1B1C"; Detectar = '^iCUE|^Corsair iCUE ?5? ?Software' },
-    @{ Nombre = "Logitech G HUB";   Id = "Logitech.GHUB";           Marca = "Logitech";    Vid = "046D"; Detectar = 'Logitech G HUB' },
-    @{ Nombre = "Razer Synapse";    Id = "RazerInc.RazerInstaller"; Marca = "Razer";       Vid = "1532"; Detectar = 'Razer Synapse' },
-    @{ Nombre = "SteelSeries GG";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038"; Detectar = 'SteelSeries GG' }
+    @{ Nombre = "Corsair iCUE 5"; Web = "corsair.com";   Id = "Corsair.iCUE.5";          Marca = "Corsair";     Vid = "1B1C"; Detectar = '^iCUE|^Corsair iCUE ?5? ?Software' },
+    @{ Nombre = "Logitech G HUB"; Web = "logitechg.com";   Id = "Logitech.GHUB";           Marca = "Logitech";    Vid = "046D"; Detectar = 'Logitech G HUB' },
+    @{ Nombre = "Razer Synapse"; Web = "razer.com";    Id = "RazerInc.RazerInstaller"; Marca = "Razer";       Vid = "1532"; Detectar = 'Razer Synapse' },
+    @{ Nombre = "SteelSeries GG"; Web = "steelseries.com";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038"; Detectar = 'SteelSeries GG' }
 )
 
 # Drivers de GPU. Id = ID de winget (vacio = todavia no verificado: se abre la pagina oficial).
 # Si la instalacion con winget falla, tambien se abre la pagina oficial.
 $script:drivers = @{
-    AMD    = @{ Nombre = "AMD Software (Adrenalin)";        Id = ""; Url = "https://www.amd.com/es/support/download/drivers.html";               Detectar = '^AMD Software|^AMD Radeon Software' }
-    NVIDIA = @{ Nombre = "NVIDIA App";                      Id = ""; Url = "https://www.nvidia.com/es-la/software/nvidia-app/";                  Detectar = '^NVIDIA app|^NVIDIA Graphics Driver' }
-    Intel  = @{ Nombre = "Intel Driver & Support Assistant"; Id = ""; Url = "https://www.intel.la/content/www/xl/es/support/detect.html";        Detectar = '^Intel.*Driver.*Support Assistant' }
+    AMD    = @{ Nombre = "AMD Software (Adrenalin)"; Web = "amd.com";        Id = ""; Url = "https://www.amd.com/es/support/download/drivers.html";               Detectar = '^AMD Software|^AMD Radeon Software' }
+    NVIDIA = @{ Nombre = "NVIDIA App"; Web = "nvidia.com";                      Id = ""; Url = "https://www.nvidia.com/es-la/software/nvidia-app/";                  Detectar = '^NVIDIA app|^NVIDIA Graphics Driver' }
+    Intel  = @{ Nombre = "Intel Driver & Support Assistant"; Web = "intel.com"; Id = ""; Url = "https://www.intel.la/content/www/xl/es/support/detect.html";        Detectar = '^Intel.*Driver.*Support Assistant' }
 }
 
 # ---------- AJUSTES (todos reversibles salvo los que lo dicen) ----------
@@ -293,7 +294,7 @@ $script:xaml = @'
              VerticalScrollBarVisibility="Auto" Background="#111827" Foreground="#D1FAE5"
              FontFamily="Consolas" FontSize="12" BorderThickness="0" Padding="8"/>
 
-    <TabControl Margin="8" Padding="4">
+    <TabControl x:Name="Tabs" Margin="8" Padding="4">
       <TabItem Header="  Mi PC  ">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
           <StackPanel Margin="6">
@@ -383,6 +384,20 @@ $script:xaml = @'
           </ScrollViewer>
         </DockPanel>
       </TabItem>
+      <TabItem x:Name="TabProgreso" Header="  Progreso  ">
+        <DockPanel Margin="8">
+          <StackPanel DockPanel.Dock="Top">
+            <TextBlock x:Name="TxtProgreso" FontSize="18" FontWeight="Bold" Text="Todavia no se ha instalado ni aplicado nada."/>
+            <ProgressBar x:Name="BarProgreso" Height="18" Margin="0,10" Minimum="0" Maximum="1" Value="0"/>
+            <TextBlock x:Name="TxtResumen" TextWrapping="Wrap" FontSize="14" Margin="0,0,0,8"/>
+          </StackPanel>
+          <Border Background="White" BorderBrush="#D1D5DB" BorderThickness="1" Padding="6">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel x:Name="PnlProgreso"/>
+            </ScrollViewer>
+          </Border>
+        </DockPanel>
+      </TabItem>
     </TabControl>
   </DockPanel>
 </Window>
@@ -409,16 +424,47 @@ function Bloquear($si) {
 }
 
 # Contenido de una casilla: nombre + check verde si ya esta instalado, o una nota gris
-function Nuevo-Contenido($nombre, $instalado, $nota) {
+function Pincel($hex) { (New-Object System.Windows.Media.BrushConverter).ConvertFromString($hex) }
+
+# Icono oficial de la app (favicon de su sitio, se descarga en segundo plano). Sin internet queda vacio.
+$script:iconos = @{}
+function Nuevo-Icono($web, $tam) {
+    $img = New-Object System.Windows.Controls.Image
+    $img.Width = $tam; $img.Height = $tam
+    $img.VerticalAlignment = "Center"
+    if ($web) {
+        if (-not $script:iconos.ContainsKey($web)) {
+            $script:iconos[$web] = $null
+            try {
+                $bi = New-Object System.Windows.Media.Imaging.BitmapImage
+                $bi.BeginInit()
+                $bi.UriSource = New-Object System.Uri "https://www.google.com/s2/favicons?domain=$web&sz=64"
+                $bi.DecodePixelWidth = 64
+                $bi.EndInit()
+                $script:iconos[$web] = $bi
+            } catch { }
+        }
+        $img.Source = $script:iconos[$web]
+    }
+    return $img
+}
+
+function Nuevo-Contenido($nombre, $instalado, $nota, $web) {
     $sp = New-Object System.Windows.Controls.StackPanel
     $sp.Orientation = "Horizontal"
+    if ($web) {
+        $ico = Nuevo-Icono $web 18
+        $ico.Margin = New-Object System.Windows.Thickness 0, 0, 6, 0
+        [void]$sp.Children.Add($ico)
+    }
     $t = New-Object System.Windows.Controls.TextBlock
+    $t.VerticalAlignment = "Center"
     $t.Text = $nombre
     [void]$sp.Children.Add($t)
     if ($instalado) {
         $ok = New-Object System.Windows.Controls.TextBlock
         $ok.Text = [string][char]0x2714
-        $ok.Foreground = (New-Object System.Windows.Media.BrushConverter).ConvertFromString("#16A34A")
+        $ok.Foreground = Pincel "#16A34A"
         $ok.FontWeight = [System.Windows.FontWeights]::Bold
         $ok.Margin = New-Object System.Windows.Thickness 8, 0, 0, 0
         $ok.ToolTip = "Ya instalado"
@@ -440,7 +486,7 @@ function Llenar-Panel($panel, $items) {
         $nota = $null
         if ($it.Conectado) { $nota = "(conectado - recomendado)" }
         elseif ($it.Recomendado -and $it.Aplicar) { $nota = "(recomendado)" }
-        $cb.Content = Nuevo-Contenido $it.Nombre $it.Instalado $nota
+        $cb.Content = Nuevo-Contenido $it.Nombre $it.Instalado $nota $it.Web
         $cb.IsChecked = [bool]$it.Recomendado
         if ($it.Desc) { $cb.ToolTip = $it.Desc } elseif ($it.Instalado) { $cb.ToolTip = "Ya instalado" }
         $it.Check = $cb
@@ -585,7 +631,7 @@ function Llenar-Driver {
             else { "Se abre su pagina oficial para descargarlo e instalarlo (el instalador te guia)." }
     $ui.TxtDriver.Text = "Tarjeta de video: $gpus`nDriver recomendado: $($pc.Driver.Nombre)`nEstado: $estado`n$como"
     $nota = if ($pc.DriverInstalado) { $null } else { "(recomendado)" }
-    $ui.ChkDriver.Content = Nuevo-Contenido "Instalar $($pc.Driver.Nombre)" $pc.DriverInstalado $nota
+    $ui.ChkDriver.Content = Nuevo-Contenido "Instalar $($pc.Driver.Nombre)" $pc.DriverInstalado $nota $pc.Driver.Web
     $ui.ChkDriver.IsChecked = -not $pc.DriverInstalado
     $ui.ChkDriver.IsEnabled = $true
 }
@@ -596,32 +642,117 @@ function Abrir-PaginaDriver {
     try { Start-Process $d.Url } catch { Log "  No se pudo abrir, entra a mano: $($d.Url)" }
 }
 
+# ---------- PROGRESO ----------
+
+$script:ok   = [string][char]0x2714
+$script:mal  = [string][char]0x2716
+
+# Prepara la pestana Progreso con una fila por tarea y la muestra
+function Iniciar-Progreso($items, $titulo) {
+    $ui = $script:ui
+    $ui.PnlProgreso.Children.Clear()
+    foreach ($it in $items) {
+        $fila = New-Object System.Windows.Controls.DockPanel
+        $fila.Margin = New-Object System.Windows.Thickness 4, 4, 4, 4
+        $ico = Nuevo-Icono $it.Web 24
+        $ico.Margin = New-Object System.Windows.Thickness 0, 0, 10, 0
+        [System.Windows.Controls.DockPanel]::SetDock($ico, "Left")
+        $est = New-Object System.Windows.Controls.TextBlock
+        $est.Text = "En espera"
+        $est.Foreground = [Windows.Media.Brushes]::Gray
+        $est.Width = 260
+        $est.FontSize = 14
+        $est.VerticalAlignment = "Center"
+        [System.Windows.Controls.DockPanel]::SetDock($est, "Right")
+        $nom = New-Object System.Windows.Controls.TextBlock
+        $nom.Text = $it.Nombre
+        $nom.FontSize = 14
+        $nom.VerticalAlignment = "Center"
+        [void]$fila.Children.Add($ico); [void]$fila.Children.Add($est); [void]$fila.Children.Add($nom)
+        $it.Fila = $est
+        [void]$ui.PnlProgreso.Children.Add($fila)
+    }
+    $ui.BarProgreso.Maximum = [Math]::Max(1, $items.Count)
+    $ui.BarProgreso.Value = 0
+    $ui.TxtProgreso.Text = $titulo
+    $ui.TxtResumen.Text = ""
+    $ui.Tabs.SelectedItem = $ui.TabProgreso
+    $script:progreso = @{ Total = $items.Count; Hechos = 0; ok = @(); yaEstaba = @(); aplicado = @(); fallo = @(); manual = @() }
+    Pump
+}
+
+function Set-Estado($it, $texto, $color) {
+    if ($it.Fila) { $it.Fila.Text = $texto; $it.Fila.Foreground = Pincel $color }
+    Pump
+}
+
+function Empezar-Item($it, $verbo) {
+    $p = $script:progreso
+    $script:ui.TxtProgreso.Text = "$verbo $($p.Hechos + 1) de $($p.Total): $($it.Nombre)"
+    Set-Estado $it "$verbo..." "#2563EB"
+}
+
+# resultado: ok, yaEstaba, aplicado, revertido, manual o fallo
+function Terminar-Item($it, $resultado) {
+    $p = $script:progreso
+    switch ($resultado) {
+        "ok"        { Set-Estado $it "$($script:ok) Instalado"            "#16A34A"; $p.ok += $it.Nombre }
+        "yaEstaba"  { Set-Estado $it "$($script:ok) Ya estaba instalado"  "#16A34A"; $p.yaEstaba += $it.Nombre }
+        "aplicado"  { Set-Estado $it "$($script:ok) Aplicado"             "#16A34A"; $p.aplicado += $it.Nombre }
+        "revertido" { Set-Estado $it "$($script:ok) Revertido"            "#16A34A"; $p.aplicado += $it.Nombre }
+        "manual"    { Set-Estado $it "Instalar a mano (se abrio su pagina)" "#D97706"; $p.manual += $it.Nombre }
+        default     { Set-Estado $it "$($script:mal) Fallo"               "#DC2626"; $p.fallo += $it.Nombre }
+    }
+    $p.Hechos++
+    $script:ui.BarProgreso.Value = $p.Hechos
+    Pump
+}
+
+function Terminar-Progreso {
+    $p = $script:progreso
+    $ui = $script:ui
+    $ui.BarProgreso.Value = $ui.BarProgreso.Maximum
+    $ui.TxtProgreso.Text = if ($p.fallo.Count) { "Terminado, con $($p.fallo.Count) error(es)" } else { "$($script:ok) Terminado" }
+    $r = @()
+    if ($p.ok.Count)       { $r += "Instalados ($($p.ok.Count)): $($p.ok -join ', ')" }
+    if ($p.yaEstaba.Count) { $r += "Ya estaban ($($p.yaEstaba.Count)): $($p.yaEstaba -join ', ')" }
+    if ($p.aplicado.Count) { $r += "Ajustes ($($p.aplicado.Count)): $($p.aplicado -join ', ')" }
+    if ($p.manual.Count)   { $r += "A mano ($($p.manual.Count)): $($p.manual -join ', ')" }
+    if ($p.fallo.Count)    { $r += "Fallaron ($($p.fallo.Count)): $($p.fallo -join ', ') -> vuelve a intentar o instalalos a mano." }
+    $ui.TxtResumen.Text = $r -join "`n"
+    foreach ($linea in $r) { Log $linea }
+}
+
 # Fase 1. Devuelve $true si el driver quedo para instalar a mano desde la pagina.
 function Fase-Driver {
     $d = $script:pc.Driver
     Log "===== FASE 1: DRIVER DE VIDEO ====="
+    Empezar-Item $d "Instalando"
     if ($d.Id) {
-        if ((Instalar-App $d) -ne "fallo") { return $false }
+        $r = Instalar-App $d
+        if ($r -ne "fallo") { Terminar-Item $d $r; return $false }
         Log "  No se pudo con winget."
     }
     Abrir-PaginaDriver
+    Terminar-Item $d "manual"
     return $true
 }
 
 function Fase-Programas($sel) {
     Log "===== FASE 2: PROGRAMAS ====="
-    $res = @{ ok = @(); yaEstaba = @(); fallo = @() }
-    foreach ($app in $sel) { $res[(Instalar-App $app)] += $app.Nombre }
-    Log "Instaladas ($($res.ok.Count)): $($res.ok -join ', ')"
-    if ($res.yaEstaba.Count) { Log "Ya estaban ($($res.yaEstaba.Count)): $($res.yaEstaba -join ', ')" }
-    if ($res.fallo.Count)    { Log "Fallaron ($($res.fallo.Count)): $($res.fallo -join ', ') -> vuelve a intentar o instalalas a mano." }
+    foreach ($app in $sel) {
+        Empezar-Item $app "Instalando"
+        Terminar-Item $app (Instalar-App $app)
+    }
 }
 
 function Fase-Optimizar($sel) {
     Log "===== FASE 3: OPTIMIZAR ====="
     foreach ($aj in $sel) {
+        Empezar-Item $aj "Aplicando"
         Log "Aplicando: $($aj.Nombre)..."
-        try { & $aj.Aplicar; Log "  OK" } catch { Log "  ERROR: $($_.Exception.Message)" }
+        try { & $aj.Aplicar; Log "  OK"; Terminar-Item $aj "aplicado" }
+        catch { Log "  ERROR: $($_.Exception.Message)"; Terminar-Item $aj "fallo" }
     }
 }
 
@@ -663,6 +794,9 @@ function Conectar-Eventos {
         if (-not (Confirmar $t)) { return }
 
         Bloquear $true
+        $tareas = @()
+        if ($driver) { $tareas += $script:pc.Driver }
+        Iniciar-Progreso ($tareas + $apps + $ajs) "Empezando..."
         if ($driver) {
             if (Fase-Driver) {
                 Aviso "Se abrio la pagina oficial de $($script:pc.Driver.Nombre).`n`nDescarga e instala el driver (si pide reiniciar, elige 'mas tarde').`nCuando termine, presiona Aceptar para seguir con los programas."
@@ -670,7 +804,7 @@ function Conectar-Eventos {
         }
         if ($apps.Count) { Fase-Programas $apps }
         if ($ajs.Count)  { Fase-Optimizar $ajs }
-        Log "===== LISTO ====="
+        Terminar-Progreso
         Log "Pendiente a mano: juegos desde cada launcher, Black Myth Wukong, perfiles de iCUE y FanControl."
         Bloquear $false
         Escanear
@@ -681,7 +815,9 @@ function Conectar-Eventos {
         if (-not $script:ui.ChkDriver.IsChecked) { Aviso "Marca la casilla del driver para instalarlo."; return }
         if (-not (Confirmar "Instalar $($script:pc.Driver.Nombre)?")) { return }
         Bloquear $true
+        Iniciar-Progreso @($script:pc.Driver) "Empezando..."
         if (Fase-Driver) { Log "Descarga e instala el driver desde la pagina que se abrio, y luego sigue con 2. Programas." }
+        Terminar-Progreso
         Bloquear $false
         Escanear
     })
@@ -691,7 +827,9 @@ function Conectar-Eventos {
         if (-not $sel.Count) { Aviso "No marcaste ninguna app."; return }
         if (-not (Confirmar "Se van a instalar $($sel.Count) apps:`n`n$(Lista $sel)`n`nPuedes dejar la PC sola mientras instala. Continuar?")) { return }
         Bloquear $true
+        Iniciar-Progreso $sel "Empezando..."
         Fase-Programas $sel
+        Terminar-Progreso
         Log "Pendiente a mano: juegos desde cada launcher, Black Myth Wukong, perfiles de iCUE y FanControl."
         Bloquear $false
         Escanear
@@ -702,7 +840,9 @@ function Conectar-Eventos {
         if (-not $sel.Count) { Aviso "No marcaste ningun ajuste."; return }
         if (-not (Confirmar "Se van a aplicar $($sel.Count) ajustes:`n`n$(Lista $sel)`n`nContinuar?")) { return }
         Bloquear $true
+        Iniciar-Progreso $sel "Empezando..."
         Fase-Optimizar $sel
+        Terminar-Progreso
         Bloquear $false
         Ofrecer-Reinicio
     })
@@ -712,10 +852,14 @@ function Conectar-Eventos {
         if (-not $sel.Count) { Aviso "No marcaste ningun ajuste que se pueda revertir."; return }
         if (-not (Confirmar "Se van a revertir (volver a como viene Windows) $($sel.Count) ajustes:`n`n$(Lista $sel)`n`nContinuar?")) { return }
         Bloquear $true
+        Iniciar-Progreso $sel "Empezando..."
         foreach ($aj in $sel) {
+            Empezar-Item $aj "Revirtiendo"
             Log "Revirtiendo: $($aj.Nombre)..."
-            try { & $aj.Revertir; Log "  OK" } catch { Log "  ERROR: $($_.Exception.Message)" }
+            try { & $aj.Revertir; Log "  OK"; Terminar-Item $aj "revertido" }
+            catch { Log "  ERROR: $($_.Exception.Message)"; Terminar-Item $aj "fallo" }
         }
+        Terminar-Progreso
         Bloquear $false
         Ofrecer-Reinicio
     })
@@ -748,12 +892,13 @@ function Main {
     }
 
     Write-Host "Abriendo el instalador... (no cierres esta ventana)" -ForegroundColor Cyan
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
     Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
 
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))
     $script:ui = @{}
-    foreach ($n in "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlPerifericos", "PnlAjustes",
+    foreach ($n in "Tabs", "TabProgreso", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlPerifericos", "PnlAjustes",
                    "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
                    "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$n] = $script:window.FindName($n)
