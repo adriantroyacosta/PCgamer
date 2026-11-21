@@ -138,3 +138,14 @@ si se optimizo.
 - En la PC actual: correr el one-liner. El analisis debe mostrar Windows 11, la GPU AMD y Corsair;
   los pasos deben marcar casi todo como `(ya instalado)`; al confirmar, casi todo sale en
   "Ya estaban". Probar tambien responder N en el resumen y verificar que no se instalo nada.
+
+## Cambio posterior (2026-11-21): ventana en vez de consola
+
+Despues de probar la version en consola, Adrian pidio una interfaz como la de WinUtil: que recomiende segun las
+caracteristicas y dispositivos de la PC, pero que el usuario marque lo que quiera. Se eligio el enfoque A
+(ventana WPF con pestanas Mi PC / Instalar / Optimizar) sobre una consola con flechas. Ademas:
+- Los ajustes los hace el propio script (con Aplicar y Revertir), y WinUtil queda como boton opcional, porque
+  lanzarlo desde el script dio "Acceso denegado".
+- Mi PC pide conectar los perifericos antes de escanear, detecta si el driver de la GPU ya esta instalado y da
+  consejos de BIOS (EXPO/XMP segun velocidad de la RAM, Resizable BAR segun la GPU).
+- Lo recomendado depende del hardware: escritorio o laptop, RAM, version de Windows y perifericos conectados.

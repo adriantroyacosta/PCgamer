@@ -2,16 +2,17 @@
 
 ## Que es este proyecto
 Instalador post-formateo para la PC gamer personal de Adrian (Windows 11). Despues de formatear,
-un solo script (lanzado con `irm ... | iex`, estilo WinUtil) analiza la PC, deja elegir paso a paso
-que reinstalar con winget y opcionalmente optimiza Windows para juegos. No instala nada antes de confirmar.
+un solo script (lanzado con `irm ... | iex`, estilo WinUtil) abre una ventana WPF que analiza la PC, recomienda
+apps y ajustes segun hardware y perifericos, y deja marcar que instalar con winget y que optimizar. No cambia nada sin confirmar.
 Proyecto personal: no tiene relacion con trabajo.
 
 ## Archivos
-- `instalar.ps1`: script principal (PowerShell 5.1). Listas de apps al inicio; `Main` hace: auto-elevacion a
-  administrador, analisis de la PC (Windows, winget, GPU, perifericos USB por VID, apps instaladas), 5 pasos
-  donde solo se elige, resumen con confirmacion, instalacion y resultado.
+- `instalar.ps1`: script principal (PowerShell 5.1, ventana WPF con XAML embebido). Partes: listas de apps
+  (`$launchers`, `$utilidades`, `$perifericos`, `$drivers`), `$ajustes` (cada uno con Desc, Recomendar, Aplicar,
+  Revertir), deteccion (`Get-InfoPC`), ventana (XAML + `Conectar-Eventos`) y `Main` (auto-elevacion y ShowDialog).
   Se publica en GitHub y se ejecuta con `irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex`.
   No usar `exit` (cerraria la ventana del usuario con `iex`): salir de `Main` con `return`.
+  winget se corre con `Start-Process -PassThru` y un bucle que llama `Pump` para que la ventana no se congele.
 - `INSTALAR.bat`: lanzador sin internet; pide administrador y ejecuta `instalar.ps1` con ExecutionPolicy Bypass.
 - `docs/superpowers/specs/`: documentos de diseno.
 - `docs/apps.md`: inventario de las apps actuales y como se reinstala cada una (fuente de verdad de la lista).
@@ -34,14 +35,17 @@ Proyecto personal: no tiene relacion con trabajo.
 - Cada app lleva `Detectar` (regex sobre DisplayName del registro Uninstall o Name de `Get-AppxPackage`).
   No confiar solo en `winget export`: omite apps instaladas desde la Store o su web (ej. Epic y GOG de la Store
   tienen IDs `XP...`, y Xbox, Chrome, WinRAR, iTunes no salen).
-- WinUtil: usar solo el preset **Standard**. Nunca Advanced (quita OneDrive, desactiva busqueda de la Store, etc.).
+- Los ajustes los aplica el propio script (lista `$ajustes`), no WinUtil. WinUtil es solo un boton opcional que lo abre
+  (via archivo temporal: con `-EncodedCommand` + `-Wait` Windows dio "Acceso denegado", posiblemente el antivirus;
+  la auto-elevacion tambien usa archivo temporal). Recomendar siempre su
+  preset **Standard**, nunca Advanced (quita OneDrive, desactiva busqueda de la Store, etc.).
 - No incluir: driver Bluetooth ASUS USB-BT500 ni librerias (Visual C++, DirectX, .NET): el usuario decidio dejarlas fuera.
 - Cualquier ajuste del sistema debe ser reversible y estar explicado en `docs/optimizacion.md`.
 - Al cambiar la lista de apps, actualizar tambien `README.md` y `docs/apps.md`.
 
 ## Como probar
-En la PC actual (con todo instalado) correr el one-liner o `INSTALAR.bat`: el analisis debe mostrar Windows 11,
-la GPU AMD y Corsair; los pasos deben marcar casi todo como "(ya instalado)". Responder N en el resumen no debe cambiar nada.
+En la PC actual (con todo instalado) correr el one-liner o `INSTALAR.bat`: Mi PC debe mostrar Windows 11, la GPU AMD
+con su driver ya instalado y Corsair conectado; en Instalar casi todo debe salir "(ya instalado)" y sin marcar.
 Cualquier app en "Fallaron" indica un ID incorrecto o un problema de la fuente.
 
 ## Ideas pendientes

@@ -1,6 +1,6 @@
 # PCgamer
 
-Instalador post-formateo para mi PC gamer. Analiza la PC, me deja elegir paso a paso que reinstalar con **winget** y, si quiero, optimiza Windows para juegos.
+Instalador post-formateo para mi PC gamer. Una ventana estilo WinUtil: analiza la PC, recomienda apps y ajustes segun el hardware y los perifericos conectados, y yo marco lo que quiero instalar (con **winget**) u optimizar.
 
 ## Uso rapido
 
@@ -19,23 +19,15 @@ Si no tiene permisos de administrador, el script abre solo una ventana nueva com
 
 ## Como funciona
 
-Funciona como un asistente: **no instala nada al arrancar**.
+Se abre una ventana con tres pestanas. **Nada se instala ni cambia hasta que presionas un boton** y confirmas.
 
-1. **Analiza la PC** (solo lee): version de Windows, winget, tarjeta grafica, perifericos USB
-   conectados (Corsair, Logitech, Razer, SteelSeries) y que apps ya estan instaladas.
-2. **Pasos en orden fijo**, en cada uno eliges que instalar
-   (`Enter` = lo sugerido, numeros como `1,3` = esas, `0` = ninguna):
+| Pestana | Que tiene |
+|---------|-----------|
+| **Mi PC** | Aviso de conectar todos los perifericos y boton *Volver a escanear*. Muestra Windows, tipo (escritorio/laptop), procesador, grafica, RAM, disco y perifericos conectados (Corsair, Logitech, Razer, SteelSeries). Recomendaciones: driver de la grafica (si falta, boton para abrir su pagina), programas de perifericos y consejos de BIOS (EXPO/XMP, Resizable BAR). |
+| **Instalar** | Launchers, utilidades y programas de perifericos con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado sale como *(ya instalado)*. Botones *Marcar recomendados*, *Desmarcar todo* e *Instalar seleccionados*. |
+| **Optimizar** | Ajustes con casillas y explicacion al pasar el mouse. Vienen marcados los recomendados para tu PC (por ejemplo, Alto rendimiento solo en escritorio). Botones *Aplicar*, *Revertir* y *Abrir WinUtil (opcional)*. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
 
-| Paso | Que eliges | Enter = |
-|------|------------|---------|
-| 1 | Launchers: Steam, EA, Epic, GOG, Ubisoft, Battle.net, Xbox, Playnite | todos los que faltan |
-| 2 | Utilidades: Chrome, WinRAR, Transmission, VirtualBox, iTunes, PC Manager, Terminal, FanControl, Dolby Access | todos los que faltan |
-| 3 | Perifericos: iCUE, G HUB, Synapse, SteelSeries GG | los detectados conectados |
-| 4 | Abrir la pagina del driver de la GPU detectada (AMD/NVIDIA) | si |
-| 5 | Optimizar: Modo Juego, plan Alto rendimiento, HAGS y WinUtil preset **Standard** | no |
-
-3. **Resumen**: muestra todo lo elegido y pide confirmar. Si dices N, no se cambia nada.
-4. **Instala todo de corrido** y al final muestra que se instalo, que ya estaba y que fallo.
+Abajo hay un registro con lo que va haciendo y el resultado (instaladas / ya estaban / fallaron).
 
 ## Agregar o quitar apps
 Edita las listas al inicio de `instalar.ps1`:
