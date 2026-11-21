@@ -27,7 +27,8 @@ Proyecto personal: no tiene relacion con trabajo.
 ## Hardware y apps del usuario
 - GPU **AMD** (driver AMD Software / Adrenalin, se instala a mano desde la web de AMD).
 - Perifericos: **Corsair** (iCUE 5). FanControl para ventiladores.
-- Launchers: Steam, EA app, Epic, GOG Galaxy, Ubisoft Connect, Battle.net, Xbox app, Playnite. Pendiente: Riot (falta verificar ID).
+- Launchers: Steam, EA app, Epic, GOG Galaxy, Ubisoft Connect, Battle.net, Xbox app, Playnite.
+- Riot es opcional con submenu (juegos + region, `$regiones`); extras (`$extras`) son opcionales, no vienen marcados.
 - Usa la app de **Xbox y la Microsoft Store** para Call of Duty y Halo: ninguna optimizacion debe romperlas.
 
 ## Reglas al editar
@@ -35,7 +36,9 @@ Proyecto personal: no tiene relacion con trabajo.
 - Textos del script **sin tildes ni n con tilde**: PowerShell 5.1 lee .ps1 sin BOM como ANSI y los acentos salen rotos.
 - Archivos `.ps1` y `.bat` con finales de linea **CRLF** (ya definido en `.gitattributes`).
 - No usar `$args` como nombre de variable (es automatica en PowerShell).
-- Verificar IDs de winget con `winget search` o `winget show --id X -e` antes de agregarlos.
+- Verificar IDs de winget antes de agregarlos: con `winget show --id X -e` en Windows, o en Linux con
+  `gh api repos/microsoft/winget-pkgs/contents/manifests/<letra>/<Publisher>/<Paquete>` (ojo: hay paquetes que solo
+  tienen subpaquetes, como `RazerInc.RazerInstaller.Synapse4`).
 - Apps de la Store: `Fuente = "msstore"` con el ID de la Store.
 - Cada app lleva `Detectar` (regex sobre DisplayName del registro Uninstall o Name de `Get-AppxPackage`).
   No confiar solo en `winget export`: omite apps instaladas desde la Store o su web (ej. Epic y GOG de la Store
@@ -54,7 +57,6 @@ con su driver ya instalado y Corsair conectado; en Instalar casi todo debe salir
 Cualquier app en "Fallaron" indica un ID incorrecto o un problema de la fuente.
 
 ## Ideas pendientes
-- Verificar con `winget search` los IDs de AMD Software, NVIDIA App, Intel DSA y Riot, y llenarlos.
 - Respaldar/restaurar automaticamente la config de FanControl y perfiles de iCUE.
 - Exportar `winget export` como respaldo adicional.
 - Agregar mas perifericos al menu si cambia el hardware (con su `Vid` para la deteccion).

@@ -25,7 +25,23 @@ $script:launchers = @(
     @{ Nombre = "Ubisoft Connect"; Web = "ubisoft.com";  Id = "Ubisoft.Connect";             Detectar = 'Ubisoft Connect' },
     @{ Nombre = "Battle.net"; Web = "battle.net";       Id = "Blizzard.BattleNet";          Detectar = '^Battle\.net$' },
     @{ Nombre = "Xbox"; Web = "xbox.com";             Id = "9MV0B5HZVK9Z"; Fuente = "msstore"; Detectar = '^Microsoft\.GamingApp$' },
-    @{ Nombre = "Playnite"; Web = "playnite.link";         Id = "Playnite.Playnite";           Detectar = '^Playnite' }
+    @{ Nombre = "Playnite"; Web = "playnite.link";         Id = "Playnite.Playnite";           Detectar = '^Playnite' },
+    # Riot: al marcarlo se eligen los juegos y la region (cada juego trae Riot Client)
+    @{ Nombre = "Riot Games"; Web = "riotgames.com"; Opcional = $true; Sub = @(
+        @{ Nombre = "Valorant";                Web = "playvalorant.com";    Base = "RiotGames.Valorant";        Clave = "Val"; Detectar = '^VALORANT$' },
+        @{ Nombre = "League of Legends + TFT"; Web = "leagueoflegends.com"; Base = "RiotGames.LeagueOfLegends"; Clave = "Lol"; Detectar = '^League of Legends$' }
+    ) }
+)
+
+# Regiones de Riot: sufijo del ID de winget de cada juego (verificado en winget-pkgs)
+$script:regiones = @(
+    @{ Nombre = "Latinoamerica Norte (LAN)";    Lol = "LA1";  Val = "LATAM" },
+    @{ Nombre = "Latinoamerica Sur (LAS)";      Lol = "LA2";  Val = "LATAM" },
+    @{ Nombre = "Norteamerica (NA)";            Lol = "NA";   Val = "NA" },
+    @{ Nombre = "Brasil (BR)";                  Lol = "BR";   Val = "BR" },
+    @{ Nombre = "Europa Oeste (EUW)";           Lol = "EUW";  Val = "EU" },
+    @{ Nombre = "Europa Nordica y Este (EUNE)"; Lol = "EUNE"; Val = "EU" },
+    @{ Nombre = "Corea (KR)";                   Lol = "KR";   Val = "KR" }
 )
 
 $script:utilidades = @(
@@ -40,21 +56,35 @@ $script:utilidades = @(
     @{ Nombre = "Dolby Access"; Web = "dolby.com";     Id = "9N0866FS04W8"; Fuente = "msstore"; Detectar = '^Dolby Access$|^DolbyLaboratories\.DolbyAccess$' }
 )
 
+# Extras para gamers: opcionales, no vienen marcados
+$script:extras = @(
+    @{ Nombre = "Discord";         Web = "discord.com";    Id = "Discord.Discord";        Opcional = $true; Detectar = '^Discord$' },
+    @{ Nombre = "OBS Studio";      Web = "obsproject.com"; Id = "OBSProject.OBSStudio";   Opcional = $true; Detectar = '^OBS Studio' },
+    @{ Nombre = "MSI Afterburner"; Web = "msi.com";        Id = "Guru3D.Afterburner";     Opcional = $true; Detectar = '^MSI Afterburner' },
+    @{ Nombre = "HWiNFO";          Web = "hwinfo.com";     Id = "REALiX.HWiNFO";          Opcional = $true; Detectar = '^HWiNFO' }
+)
+
 # Web = dominio oficial, solo para mostrar su icono en la ventana
 # Vid = ID de fabricante USB, para detectar si hay un periferico de esa marca conectado
 $script:perifericos = @(
     @{ Nombre = "Corsair iCUE 5"; Web = "corsair.com";   Id = "Corsair.iCUE.5";          Marca = "Corsair";     Vid = "1B1C"; Detectar = '^iCUE|^Corsair iCUE ?5? ?Software' },
     @{ Nombre = "Logitech G HUB"; Web = "logitechg.com";   Id = "Logitech.GHUB";           Marca = "Logitech";    Vid = "046D"; Detectar = 'Logitech G HUB' },
-    @{ Nombre = "Razer Synapse"; Web = "razer.com";    Id = "RazerInc.RazerInstaller"; Marca = "Razer";       Vid = "1532"; Detectar = 'Razer Synapse' },
-    @{ Nombre = "SteelSeries GG"; Web = "steelseries.com";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038"; Detectar = 'SteelSeries GG' }
+    @{ Nombre = "Razer Synapse 4"; Web = "razer.com";  Id = "RazerInc.RazerInstaller.Synapse4"; Marca = "Razer"; Vid = "1532"; Detectar = 'Razer Synapse' },
+    @{ Nombre = "SteelSeries GG"; Web = "steelseries.com";   Id = "SteelSeries.GG";          Marca = "SteelSeries"; Vid = "1038"; Detectar = 'SteelSeries GG' },
+    @{ Nombre = "Turtle Beach Audio Hub"; Web = "turtlebeach.com"; Id = "TurtleBeach.AudioHub"; Marca = "Turtle Beach"; Vid = "10F5"; Detectar = 'Turtle Beach Audio Hub|^Audio Hub' },
+    @{ Nombre = "ROCCAT Swarm II"; Web = "roccat.com";  Id = "TurtleBeach.ROCCATSwarm"; Marca = "ROCCAT";       Vid = "1E7D"; Detectar = 'ROCCAT Swarm' },
+    @{ Nombre = "Elgato Stream Deck"; Web = "elgato.com"; Id = "Elgato.StreamDeck";     Marca = "Elgato";       Vid = "0FD9"; Detectar = 'Stream Deck' },
+    # ASUS usa el mismo VID en placas madre y adaptadores Bluetooth: solo cuenta si el nombre parece periferico
+    @{ Nombre = "ASUS Armoury Crate"; Web = "asus.com"; Id = "Asus.ArmouryCrate";      Marca = "ASUS ROG";     Vid = "0B05"; Filtro = 'ROG|TUF|Keyboard|Mouse|Headset|Teclado|Auricular'; Detectar = '^Armoury Crate' }
 )
 
-# Drivers de GPU. Id = ID de winget (vacio = todavia no verificado: se abre la pagina oficial).
+# Drivers de GPU. Id = ID de winget. AMD Adrenalin y NVIDIA App no estan en winget (verificado en
+# winget-pkgs), por eso su Id esta vacio y se abre la pagina oficial.
 # Si la instalacion con winget falla, tambien se abre la pagina oficial.
 $script:drivers = @{
     AMD    = @{ Nombre = "AMD Software (Adrenalin)"; Web = "amd.com";        Id = ""; Url = "https://www.amd.com/es/support/download/drivers.html";               Detectar = '^AMD Software|^AMD Radeon Software' }
     NVIDIA = @{ Nombre = "NVIDIA App"; Web = "nvidia.com";                      Id = ""; Url = "https://www.nvidia.com/es-la/software/nvidia-app/";                  Detectar = '^NVIDIA app|^NVIDIA Graphics Driver' }
-    Intel  = @{ Nombre = "Intel Driver & Support Assistant"; Web = "intel.com"; Id = ""; Url = "https://www.intel.la/content/www/xl/es/support/detect.html";        Detectar = '^Intel.*Driver.*Support Assistant' }
+    Intel  = @{ Nombre = "Intel Driver & Support Assistant"; Web = "intel.com"; Id = "Intel.IntelDriverAndSupportAssistant"; Url = "https://www.intel.la/content/www/xl/es/support/detect.html";        Detectar = '^Intel.*Driver.*Support Assistant' }
 }
 
 # ---------- AJUSTES (todos reversibles salvo los que lo dicen) ----------
@@ -192,6 +222,23 @@ function Get-AppsInstaladas {
     }
 }
 
+function Todas-Apps { $script:launchers + $script:utilidades + $script:extras + $script:perifericos }
+
+# Region de Riot por defecto segun el pais de Windows (indice en $regiones)
+function Get-RegionRiot {
+    $pais = ""
+    try { $pais = [System.Globalization.RegionInfo]::CurrentRegion.TwoLetterISORegionName } catch { }
+    switch -regex ($pais) {
+        '^(AR|CL|UY|PY|BO)$'                        { return 1 }
+        '^(US|CA)$'                                 { return 2 }
+        '^BR$'                                      { return 3 }
+        '^(ES|FR|DE|IT|PT|GB|IE|NL|BE|CH|AT)$'      { return 4 }
+        '^(PL|CZ|SE|NO|DK|FI|GR|RO|HU)$'            { return 5 }
+        '^KR$'                                      { return 6 }
+        default                                     { return 0 }
+    }
+}
+
 function Get-InfoPC {
     $pc = @{ Avisos = @() }
 
@@ -228,8 +275,15 @@ function Get-InfoPC {
     # Instalado: por ID de winget o por nombre en Windows
     $ids = @(); if ($pc.Winget) { $ids = @(Get-AppsInstaladas) }
     $nombres = @(Get-NombresInstalados)
-    foreach ($app in ($script:launchers + $script:utilidades + $script:perifericos)) {
-        $app.Instalado = ($ids -contains $app.Id) -or (@($nombres -match $app.Detectar).Count -gt 0)
+    foreach ($app in (Todas-Apps)) {
+        if ($app.Sub) {
+            foreach ($sub in $app.Sub) {
+                $sub.Instalado = (@($ids -match "^$([regex]::Escape($sub.Base))\.").Count -gt 0) -or (@($nombres -match $sub.Detectar).Count -gt 0)
+            }
+            $app.Instalado = @($app.Sub | Where-Object { $_.Instalado }).Count -gt 0
+        } else {
+            $app.Instalado = ($ids -contains $app.Id) -or (@($nombres -match $app.Detectar).Count -gt 0)
+        }
     }
 
     # Driver de GPU
@@ -245,13 +299,14 @@ function Get-InfoPC {
         Where-Object { $_.InstanceId -match '^(USB|HID)\\VID_' })
     foreach ($p in $script:perifericos) {
         $suyos = @($dispositivos | Where-Object { $_.InstanceId -match "VID_$($p.Vid)" })
+        if ($p.Filtro) { $suyos = @($suyos | Where-Object { $_.FriendlyName -match $p.Filtro }) }
         $p.Conectado = $suyos.Count -gt 0
         $p.Dispositivos = @($suyos | Where-Object { $_.FriendlyName } |
             Select-Object -ExpandProperty FriendlyName -Unique | Select-Object -First 3)
     }
 
     # Recomendaciones de apps
-    foreach ($app in ($script:launchers + $script:utilidades)) { $app.Recomendado = -not $app.Instalado }
+    foreach ($app in ($script:launchers + $script:utilidades + $script:extras)) { $app.Recomendado = -not $app.Instalado -and -not $app.Opcional }
     foreach ($p in $script:perifericos) { $p.Recomendado = $p.Conectado -and -not $p.Instalado }
     foreach ($aj in $script:ajustes) { $aj.Recomendado = [bool](& $aj.Recomendar $pc) }
 
@@ -357,6 +412,7 @@ $script:xaml = @'
             <WrapPanel>
               <GroupBox Header="Launchers de juegos" Width="300"><StackPanel x:Name="PnlLaunchers"/></GroupBox>
               <GroupBox Header="Utilidades" Width="300"><StackPanel x:Name="PnlUtilidades"/></GroupBox>
+              <GroupBox Header="Extras para gamers (opcional)" Width="300"><StackPanel x:Name="PnlExtras"/></GroupBox>
               <GroupBox Header="Perifericos" Width="300"><StackPanel x:Name="PnlPerifericos"/></GroupBox>
             </WrapPanel>
           </ScrollViewer>
@@ -491,11 +547,50 @@ function Llenar-Panel($panel, $items) {
         if ($it.Desc) { $cb.ToolTip = $it.Desc } elseif ($it.Instalado) { $cb.ToolTip = "Ya instalado" }
         $it.Check = $cb
         [void]$panel.Children.Add($cb)
+        if ($it.Sub) { [void]$panel.Children.Add((Nuevo-Submenu $it $cb)) }
     }
 }
 
+# Juegos de Riot y region, debajo de su casilla. Solo se ve si la casilla esta marcada.
+function Nuevo-Submenu($it, $cb) {
+    $caja = New-Object System.Windows.Controls.StackPanel
+    $caja.Margin = New-Object System.Windows.Thickness 26, 0, 0, 6
+    foreach ($sub in $it.Sub) {
+        $scb = New-Object System.Windows.Controls.CheckBox
+        $scb.Content = Nuevo-Contenido $sub.Nombre $sub.Instalado $null $sub.Web
+        $scb.IsChecked = $false
+        if ($sub.Instalado) { $scb.ToolTip = "Ya instalado" }
+        $sub.Check = $scb
+        [void]$caja.Children.Add($scb)
+    }
+    $fila = New-Object System.Windows.Controls.StackPanel
+    $fila.Orientation = "Horizontal"
+    $fila.Margin = New-Object System.Windows.Thickness 0, 4, 0, 0
+    $txt = New-Object System.Windows.Controls.TextBlock
+    $txt.Text = "Region:"
+    $txt.VerticalAlignment = "Center"
+    $txt.Margin = New-Object System.Windows.Thickness 0, 0, 6, 0
+    $combo = New-Object System.Windows.Controls.ComboBox
+    $combo.Width = 200
+    foreach ($r in $script:regiones) { [void]$combo.Items.Add($r.Nombre) }
+    $combo.SelectedIndex = Get-RegionRiot
+    $combo.ToolTip = "La region de tu cuenta. Despues se puede cambiar desde Riot Client."
+    [void]$fila.Children.Add($txt); [void]$fila.Children.Add($combo)
+    [void]$caja.Children.Add($fila)
+    $it.Region = $combo
+
+    $caja.Visibility = if ($cb.IsChecked) { "Visible" } else { "Collapsed" }
+    $cb.Tag = $caja
+    $cb.Add_Checked({ $this.Tag.Visibility = "Visible" })
+    $cb.Add_Unchecked({ $this.Tag.Visibility = "Collapsed" })
+    return $caja
+}
+
 function Marcar($items, $soloRecomendados) {
-    foreach ($it in $items) { $it.Check.IsChecked = $soloRecomendados -and [bool]$it.Recomendado }
+    foreach ($it in $items) {
+        $it.Check.IsChecked = $soloRecomendados -and [bool]$it.Recomendado
+        if ($it.Sub -and -not $soloRecomendados) { foreach ($sub in $it.Sub) { $sub.Check.IsChecked = $false } }
+    }
 }
 
 function Mostrar-InfoPC {
@@ -510,7 +605,7 @@ function Mostrar-InfoPC {
     foreach ($p in $script:perifericos) {
         if ($p.Conectado) { $perif += "$($p.Marca) ($($p.Dispositivos -join ', '))" }
     }
-    if (-not $perif.Count) { $perif = @("ninguno de Corsair, Logitech, Razer o SteelSeries") }
+    if (-not $perif.Count) { $perif = @("ninguno de las marcas con programa propio") }
 
     $lineas = @(
         ("Windows:      {0} {1} (build {2})" -f $pc.Windows, $pc.Version, $pc.Build),
@@ -579,6 +674,7 @@ function Escanear {
     Llenar-Driver
     Llenar-Panel $script:ui.PnlLaunchers   $script:launchers
     Llenar-Panel $script:ui.PnlUtilidades  $script:utilidades
+    Llenar-Panel $script:ui.PnlExtras      $script:extras
     Llenar-Panel $script:ui.PnlPerifericos $script:perifericos
     Llenar-Panel $script:ui.PnlAjustes     $script:ajustes
     Log "Listo. Revisa las pestanas 1. Driver, 2. Programas y 3. Optimizar, o usa 'Hacer todo lo recomendado'."
@@ -756,7 +852,22 @@ function Fase-Optimizar($sel) {
     }
 }
 
-function Apps-Marcadas { @(($script:launchers + $script:utilidades + $script:perifericos) | Where-Object { $_.Check.IsChecked }) }
+# Apps marcadas para instalar. Riot se reemplaza por sus juegos marcados, con el ID de la region elegida.
+function Apps-Marcadas {
+    $sel = @()
+    foreach ($it in (Todas-Apps)) {
+        if (-not $it.Check.IsChecked) { continue }
+        if ($it.Sub) {
+            $reg = $script:regiones[[Math]::Max(0, $it.Region.SelectedIndex)]
+            foreach ($sub in $it.Sub) {
+                if ($sub.Check.IsChecked) { $sub.Id = "$($sub.Base).$($reg[$sub.Clave])"; $sel += $sub }
+            }
+        } else {
+            $sel += $it
+        }
+    }
+    return $sel
+}
 function Ajustes-Marcados { @($script:ajustes | Where-Object { $_.Check.IsChecked }) }
 function Lista($items) { ($items | ForEach-Object { "  - $($_.Nombre)" }) -join "`n" }
 function Aviso($texto) { [System.Windows.MessageBox]::Show($texto, "PC Gamer") | Out-Null }
@@ -776,8 +887,8 @@ function Conectar-Eventos {
     $ui.BtnEscanear.Add_Click({ Escanear })
     $ui.BtnDriverPagina.Add_Click({ if ($script:pc.Driver) { Abrir-PaginaDriver } })
 
-    $ui.BtnAppsRec.Add_Click({ Marcar ($script:launchers + $script:utilidades + $script:perifericos) $true })
-    $ui.BtnAppsNada.Add_Click({ Marcar ($script:launchers + $script:utilidades + $script:perifericos) $false })
+    $ui.BtnAppsRec.Add_Click({ Marcar (Todas-Apps) $true })
+    $ui.BtnAppsNada.Add_Click({ Marcar (Todas-Apps) $false })
     $ui.BtnAjRec.Add_Click({ Marcar $script:ajustes $true })
     $ui.BtnAjNada.Add_Click({ Marcar $script:ajustes $false })
 
@@ -824,7 +935,7 @@ function Conectar-Eventos {
 
     $ui.BtnInstalar.Add_Click({
         $sel = @(Apps-Marcadas)
-        if (-not $sel.Count) { Aviso "No marcaste ninguna app."; return }
+        if (-not $sel.Count) { Aviso "No marcaste ninguna app (si marcaste Riot Games, elige tambien un juego)."; return }
         if (-not (Confirmar "Se van a instalar $($sel.Count) apps:`n`n$(Lista $sel)`n`nPuedes dejar la PC sola mientras instala. Continuar?")) { return }
         Bloquear $true
         Iniciar-Progreso $sel "Empezando..."
@@ -898,7 +1009,7 @@ function Main {
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))
     $script:ui = @{}
-    foreach ($n in "Tabs", "TabProgreso", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlPerifericos", "PnlAjustes",
+    foreach ($n in "Tabs", "TabProgreso", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlExtras", "PnlPerifericos", "PnlAjustes",
                    "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
                    "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$n] = $script:window.FindName($n)

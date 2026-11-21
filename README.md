@@ -25,8 +25,8 @@ Se abre una ventana con pestanas en el orden logico para dejar la PC lista para 
 | Pestana | Que tiene |
 |---------|-----------|
 | **Mi PC** | Aviso de conectar todos los perifericos y boton *Volver a escanear*. Muestra Windows, tipo (escritorio/laptop), procesador, grafica, RAM, disco y perifericos conectados. Recomendaciones y consejos de BIOS (EXPO/XMP, Resizable BAR). Boton **Hacer todo lo recomendado** que corre las fases 1, 2 y 3 seguidas. |
-| **1. Driver** | Detecta la tarjeta de video (AMD, NVIDIA o Intel) y si su driver ya esta instalado. Si falta, viene marcado: se instala con winget o, si no se puede, se abre la pagina oficial. Va primero porque los juegos y ajustes como HAGS dependen de el. |
-| **2. Programas** | Launchers, utilidades y programas de perifericos con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado sale como *(ya instalado)*. |
+| **1. Driver** | Detecta la tarjeta de video (AMD, NVIDIA o Intel) y si su driver ya esta instalado. Si falta, viene marcado: Intel se instala con winget; AMD y NVIDIA no estan en winget, asi que se abre su pagina oficial. Va primero porque los juegos y ajustes como HAGS dependen de el. |
+| **2. Programas** | Launchers (con Riot Games: al marcarlo eliges Valorant y/o League of Legends y la region), utilidades, extras para gamers opcionales (Discord, OBS, MSI Afterburner, HWiNFO) y programas de perifericos (Corsair, Logitech, Razer, SteelSeries, Turtle Beach, ROCCAT, Elgato, ASUS ROG) con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado sale como *(ya instalado)*. |
 | **3. Optimizar** | Ajustes con casillas y explicacion al pasar el mouse, recomendados segun tu PC. Va al final para que el punto de restauracion guarde la PC con todo instalado. Botones *Aplicar*, *Revertir* y *Abrir WinUtil (opcional)*. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
 
 | **Progreso** | Se abre sola al instalar o aplicar: barra de avance, "Instalando 3 de 9: Steam" y una fila por cada cosa con su icono y estado (En espera, Instalando..., Instalado, Ya estaba, Fallo). Al terminar queda el resumen completo. |
