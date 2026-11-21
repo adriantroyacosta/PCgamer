@@ -1,38 +1,47 @@
 # PCgamer
 
-Instalador post-formateo para mi PC gamer. Reinstala mis apps con **winget** en 5 pasos y, si quiero, optimiza Windows para juegos.
+Instalador post-formateo para mi PC gamer. Analiza la PC, me deja elegir paso a paso que reinstalar con **winget** y, si quiero, optimiza Windows para juegos.
 
 ## Uso rapido
 
-### Opcion A: desde el USB o la carpeta descargada
+### Opcion A: directo desde GitHub (recomendado, PC recien formateada)
+Abre **PowerShell** (no hace falta como administrador) y pega:
+
+```powershell
+irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex
+```
+
+Si no tiene permisos de administrador, el script abre solo una ventana nueva como administrador.
+
+### Opcion B: sin internet, desde el USB o la carpeta descargada
 1. Copia `INSTALAR.bat` e `instalar.ps1` a la misma carpeta.
 2. Doble clic en `INSTALAR.bat` y acepta el permiso de administrador.
 
-### Opcion B: directo desde GitHub (PC recien formateada, sin USB)
-Abre **PowerShell como administrador** y pega:
+## Como funciona
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex
-```
+Funciona como un asistente: **no instala nada al arrancar**.
 
-> La opcion B solo funciona si el repo es **publico**.
+1. **Analiza la PC** (solo lee): version de Windows, winget, tarjeta grafica, perifericos USB
+   conectados (Corsair, Logitech, Razer, SteelSeries) y que apps ya estan instaladas.
+2. **Pasos en orden fijo**, en cada uno eliges que instalar
+   (`Enter` = lo sugerido, numeros como `1,3` = esas, `0` = ninguna):
 
-## Que hace
+| Paso | Que eliges | Enter = |
+|------|------------|---------|
+| 1 | Launchers: Steam, EA, Epic, GOG, Ubisoft, Battle.net, Xbox, Playnite | todos los que faltan |
+| 2 | Utilidades: Chrome, WinRAR, Transmission, VirtualBox, iTunes, PC Manager, Terminal, FanControl, Dolby Access | todos los que faltan |
+| 3 | Perifericos: iCUE, G HUB, Synapse, SteelSeries GG | los detectados conectados |
+| 4 | Abrir la pagina del driver de la GPU detectada (AMD/NVIDIA) | si |
+| 5 | Optimizar: Modo Juego, plan Alto rendimiento, HAGS y WinUtil preset **Standard** | no |
 
-| Paso | Que hace |
-|------|----------|
-| 1 | Detecta la tarjeta grafica (AMD/NVIDIA) y abre la pagina del driver |
-| 2 | Menu de perifericos: Corsair, Logitech, Razer, SteelSeries |
-| 3 | Launchers: Steam, EA, Epic, GOG, Ubisoft, Battle.net, Xbox, Playnite |
-| 4 | Utilidades: Chrome, WinRAR, Transmission, VirtualBox, iTunes, PC Manager, Terminal, FanControl, Dolby Access |
-| 5 | (Opcional) Modo Juego, plan Alto rendimiento, HAGS y WinUtil preset **Standard** |
-
-Al final muestra que se instalo, que ya estaba y que fallo.
+3. **Resumen**: muestra todo lo elegido y pide confirmar. Si dices N, no se cambia nada.
+4. **Instala todo de corrido** y al final muestra que se instalo, que ya estaba y que fallo.
 
 ## Agregar o quitar apps
 Edita las listas al inicio de `instalar.ps1`:
 - Quitar: pon `#` al inicio de la linea.
 - Agregar: busca el ID con `winget search nombre` y copia una linea cambiando `Nombre` e `Id`.
+- Perifericos de otra marca: agrega tambien `Marca` y `Vid` (ID de fabricante USB, se ve en Administrador de dispositivos > Detalles > Id. de hardware).
 - Apps de Microsoft Store: agrega `Fuente = "msstore"`.
 
 ## Documentacion

@@ -1,6 +1,7 @@
 # Optimizacion (paso 5)
 
-El paso 5 es opcional: el script pregunta S/N.
+El paso 5 es opcional: el script pregunta S/N (Enter = no). Los cambios se aplican recien despues de
+confirmar el resumen final. Si Windows es anterior a 10 2004 (build 19041), HAGS se omite.
 
 ## Ajustes propios
 | Ajuste | Como | Revertir |

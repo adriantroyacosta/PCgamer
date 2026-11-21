@@ -6,7 +6,7 @@ Leyenda: 🟢 lo instala el script · 🟡 se baja desde su launcher · 🔴 a m
 | App | Como | ID winget |
 |-----|------|-----------|
 | AMD Software (Adrenalin) | 🔴 web de AMD (el script abre la pagina) | - |
-| Corsair iCUE 5 | 🟢 menu de perifericos | `Corsair.iCUE.5` |
+| Corsair iCUE 5 | 🟢 paso 3 (recomendado si hay Corsair conectado) | `Corsair.iCUE.5` |
 | FanControl | 🟢 | `Rem0o.FanControl` |
 | Dolby Access | 🟢 Store | `9N0866FS04W8` |
 

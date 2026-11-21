@@ -2,12 +2,18 @@
 
 ## Que es este proyecto
 Instalador post-formateo para la PC gamer personal de Adrian (Windows 11). Despues de formatear,
-un solo script reinstala sus apps con winget y opcionalmente optimiza Windows para juegos.
+un solo script (lanzado con `irm ... | iex`, estilo WinUtil) analiza la PC, deja elegir paso a paso
+que reinstalar con winget y opcionalmente optimiza Windows para juegos. No instala nada antes de confirmar.
 Proyecto personal: no tiene relacion con trabajo.
 
 ## Archivos
-- `instalar.ps1`: script principal (PowerShell 5.1). Listas de apps al inicio, luego 5 pasos y un resumen.
-- `INSTALAR.bat`: lanzador; pide administrador y ejecuta `instalar.ps1` con ExecutionPolicy Bypass.
+- `instalar.ps1`: script principal (PowerShell 5.1). Listas de apps al inicio; `Main` hace: auto-elevacion a
+  administrador, analisis de la PC (Windows, winget, GPU, perifericos USB por VID, apps instaladas), 5 pasos
+  donde solo se elige, resumen con confirmacion, instalacion y resultado.
+  Se publica en GitHub y se ejecuta con `irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex`.
+  No usar `exit` (cerraria la ventana del usuario con `iex`): salir de `Main` con `return`.
+- `INSTALAR.bat`: lanzador sin internet; pide administrador y ejecuta `instalar.ps1` con ExecutionPolicy Bypass.
+- `docs/superpowers/specs/`: documentos de diseno.
 - `docs/apps.md`: inventario de las apps actuales y como se reinstala cada una (fuente de verdad de la lista).
 - `docs/antes-de-formatear.md`: checklist de respaldo.
 - `docs/optimizacion.md`: detalle del paso 5.
@@ -31,10 +37,11 @@ Proyecto personal: no tiene relacion con trabajo.
 - Al cambiar la lista de apps, actualizar tambien `README.md` y `docs/apps.md`.
 
 ## Como probar
-En la PC actual (con todo instalado) correr `INSTALAR.bat`: casi todo debe salir en "Ya estaban".
+En la PC actual (con todo instalado) correr el one-liner o `INSTALAR.bat`: el analisis debe mostrar Windows 11,
+la GPU AMD y Corsair; los pasos deben marcar casi todo como "(ya instalado)". Responder N en el resumen no debe cambiar nada.
 Cualquier app en "Fallaron" indica un ID incorrecto o un problema de la fuente.
 
 ## Ideas pendientes
 - Respaldar/restaurar automaticamente la config de FanControl y perfiles de iCUE.
 - Exportar `winget export` como respaldo adicional.
-- Agregar mas perifericos al menu si cambia el hardware.
+- Agregar mas perifericos al menu si cambia el hardware (con su `Vid` para la deteccion).
