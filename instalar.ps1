@@ -184,7 +184,8 @@ function Abrir-ComoAdmin {
         $argumentos = "-NoProfile -ExecutionPolicy Bypass -File `"$archivo`""
     }
     try {
-        Start-Process powershell -Verb RunAs -ArgumentList $argumentos -ErrorAction Stop
+        # Oculta: solo se ve la ventana del instalador
+        Start-Process powershell -Verb RunAs -WindowStyle Hidden -ArgumentList $argumentos -ErrorAction Stop
         return $true
     } catch {
         return $false
@@ -301,7 +302,10 @@ function Get-InfoPC {
         $suyos = @($dispositivos | Where-Object { $_.InstanceId -match "VID_$($p.Vid)" })
         if ($p.Filtro) { $suyos = @($suyos | Where-Object { $_.FriendlyName -match $p.Filtro }) }
         $p.Conectado = $suyos.Count -gt 0
-        $p.Dispositivos = @($suyos | Where-Object { $_.FriendlyName } |
+        $p.Cantidad = $suyos.Count
+        # Windows suele dar nombres genericos ("Dispositivo de entrada USB"): esos no se muestran
+        $generico = 'Dispositivo|Device|USB Input|HID|compatible|Composite|compuesto|Concentrador|Hub|Controlador|Controller|Raiz|Root'
+        $p.Dispositivos = @($suyos | Where-Object { $_.FriendlyName -and $_.FriendlyName -notmatch $generico } |
             Select-Object -ExpandProperty FriendlyName -Unique | Select-Object -First 3)
     }
 
@@ -603,7 +607,10 @@ function Mostrar-InfoPC {
 
     $perif = @()
     foreach ($p in $script:perifericos) {
-        if ($p.Conectado) { $perif += "$($p.Marca) ($($p.Dispositivos -join ', '))" }
+        if ($p.Conectado) {
+            if ($p.Dispositivos.Count) { $perif += "$($p.Marca) ($($p.Dispositivos -join ', '))" }
+            else { $perif += "$($p.Marca) ($($p.Cantidad) dispositivo(s) conectado(s))" }
+        }
     }
     if (-not $perif.Count) { $perif = @("ninguno de las marcas con programa propio") }
 
@@ -648,8 +655,9 @@ function Mostrar-InfoPC {
         $r += "- Laptop: juega con el cargador conectado. El plan Alto rendimiento y desactivar la hibernacion no se recomiendan por la bateria."
     }
     if (($pc.RamTipo -eq "DDR5" -and $pc.RamMhz -gt 0 -and $pc.RamMhz -le 4800) -or
-        ($pc.RamTipo -eq "DDR4" -and $pc.RamMhz -gt 0 -and $pc.RamMhz -le 2666)) {
-        $r += "- BIOS: tu RAM corre a $($pc.RamMhz) MHz, la velocidad basica de $($pc.RamTipo). Probablemente EXPO/XMP esta apagado: activalo en la BIOS para que corra a su velocidad real."
+        ($pc.RamTipo -eq "DDR4" -and $pc.RamMhz -gt 0 -and $pc.RamMhz -le 2667)) {
+        $perfil = if ($pc.RamTipo -eq "DDR5") { "EXPO/XMP" } else { "XMP (DOCP en placas ASUS)" }
+        $r += "- BIOS: tu RAM corre a $($pc.RamMhz) MHz, la velocidad basica de $($pc.RamTipo). Si tu memoria es mas rapida (mira la etiqueta, ej. 3200 o 3600), activa $perfil en la BIOS para que corra a su velocidad real. Algunas placas madre economicas no lo permiten."
     }
     if ($pc.GPUs -match "AMD|Radeon") {
         $r += "- BIOS: activa Smart Access Memory / Resizable BAR (Above 4G Decoding + Re-Size BAR). Puedes verificarlo en AMD Software > Rendimiento."
@@ -995,7 +1003,7 @@ function Main {
     if (-not (Test-Admin)) {
         Write-Host "Se necesitan permisos de administrador. Abriendo una ventana nueva..." -ForegroundColor Yellow
         if (Abrir-ComoAdmin) {
-            Write-Host "Continua en la ventana nueva. Esta ya se puede cerrar."
+            Write-Host "Listo: en unos segundos se abre la ventana del instalador. Esta ya se puede cerrar." -ForegroundColor Green
         } else {
             Write-Host "No se dieron los permisos de administrador. No se hizo ningun cambio." -ForegroundColor Red
         }
@@ -1005,6 +1013,14 @@ function Main {
     Write-Host "Abriendo el instalador... (no cierres esta ventana)" -ForegroundColor Cyan
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
     Add-Type -AssemblyName PresentationFramework, PresentationCore, WindowsBase
+    try {
+        Abrir-Ventana
+    } catch {
+        [System.Windows.MessageBox]::Show("El instalador encontro un error y se cerro:`n`n$($_.Exception.Message)`n`nVuelve a intentarlo. Si se repite, manda una captura de este mensaje.", "PC Gamer", "OK", "Error") | Out-Null
+    }
+}
+
+function Abrir-Ventana {
 
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))

@@ -11,7 +11,14 @@ Abre **PowerShell** (no hace falta como administrador) y pega:
 irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex
 ```
 
-Si no tiene permisos de administrador, el script abre solo una ventana nueva como administrador.
+O desde **CMD** (Simbolo del sistema):
+
+```cmd
+powershell -c "irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex"
+```
+
+Windows pide permiso de administrador (acepta) y se abre la ventana del instalador; la consola de administrador
+queda oculta. La ventana donde pegaste la linea ya se puede cerrar.
 
 ### Opcion B: sin internet, desde el USB o la carpeta descargada
 1. Copia `INSTALAR.bat` e `instalar.ps1` a la misma carpeta.
