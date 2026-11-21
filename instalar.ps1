@@ -359,29 +359,31 @@ $script:xaml = @'
           <StackPanel Margin="6">
             <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="4" Padding="10" Margin="6">
               <TextBlock TextWrapping="Wrap">
-                <Bold>Antes de empezar:</Bold> conecta todos tus perifericos (teclado, mouse, headset, control)
-                y presiona <Bold>Volver a escanear</Bold>, asi se detectan y se recomienda su programa.
-                El orden es <Bold>1. Driver</Bold>, <Bold>2. Programas</Bold> y <Bold>3. Optimizar</Bold>, con un solo reinicio al final.
+                <Bold>Bienvenido.</Bold> Antes de empezar, conecta todos tus perifericos (teclado, mouse, headset, control)
+                para que se detecten y se recomiende su programa. Luego presiona <Bold>Comenzar analisis</Bold>: revisa tu PC
+                sin instalar ni cambiar nada (si falta winget, el instalador lo instala solo).
+                Despues el orden es <Bold>1. Driver</Bold>, <Bold>2. Programas</Bold> y <Bold>3. Optimizar</Bold>, con un solo reinicio al final.
                 Lo recomendado ya viene marcado en cada pestana, pero puedes marcar o desmarcar lo que quieras.
                 Usa <Bold>Hacer todo lo recomendado</Bold> para correr las 3 fases seguidas, o ve pestana por pestana.
                 Nada se instala ni cambia hasta que confirmes.
               </TextBlock>
             </Border>
             <WrapPanel Margin="2">
-              <Button x:Name="BtnTodo" Content="Hacer todo lo recomendado (1 &gt; 2 &gt; 3)" FontWeight="Bold" Padding="18,8"/>
-              <Button x:Name="BtnEscanear" Content="Volver a escanear" Style="{StaticResource Secundario}"/>
+              <Button x:Name="BtnComenzar" Content="Comenzar analisis" FontWeight="Bold" FontSize="16" Padding="28,12"/>
+              <Button x:Name="BtnTodo" Content="Hacer todo lo recomendado (1 &gt; 2 &gt; 3)" FontWeight="Bold" Padding="18,8" Visibility="Collapsed"/>
+              <Button x:Name="BtnEscanear" Content="Volver a escanear" Style="{StaticResource Secundario}" Visibility="Collapsed"/>
             </WrapPanel>
-            <GroupBox Header="Tu PC">
+            <GroupBox x:Name="GrpInfo" Header="Tu PC" Visibility="Collapsed">
               <TextBlock x:Name="TxtInfo" FontFamily="Consolas" TextWrapping="Wrap" Text="Escaneando..."/>
             </GroupBox>
-            <GroupBox Header="Recomendaciones para tu PC">
+            <GroupBox x:Name="GrpRecom" Header="Recomendaciones para tu PC" Visibility="Collapsed">
               <TextBlock x:Name="TxtRecom" TextWrapping="Wrap" LineHeight="22"/>
             </GroupBox>
           </StackPanel>
         </ScrollViewer>
       </TabItem>
 
-      <TabItem Header="  1. Driver  ">
+      <TabItem x:Name="TabDriver" Header="  1. Driver  " IsEnabled="False">
         <DockPanel Margin="4">
           <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
             <Button x:Name="BtnDriverPagina" DockPanel.Dock="Left" Content="Abrir pagina oficial" Style="{StaticResource Secundario}"/>
@@ -400,7 +402,7 @@ $script:xaml = @'
         </DockPanel>
       </TabItem>
 
-      <TabItem Header="  2. Programas  ">
+      <TabItem x:Name="TabProgramas" Header="  2. Programas  " IsEnabled="False">
         <DockPanel Margin="4">
           <WrapPanel DockPanel.Dock="Top">
             <TextBlock Text="Selecciones:" VerticalAlignment="Center" Margin="4,0,8,0"/>
@@ -423,7 +425,7 @@ $script:xaml = @'
         </DockPanel>
       </TabItem>
 
-      <TabItem Header="  3. Optimizar  ">
+      <TabItem x:Name="TabOptimizar" Header="  3. Optimizar  " IsEnabled="False">
         <DockPanel Margin="4">
           <WrapPanel DockPanel.Dock="Top">
             <TextBlock Text="Selecciones:" VerticalAlignment="Center" Margin="4,0,8,0"/>
@@ -444,7 +446,7 @@ $script:xaml = @'
           </ScrollViewer>
         </DockPanel>
       </TabItem>
-      <TabItem x:Name="TabProgreso" Header="  Progreso  ">
+      <TabItem x:Name="TabProgreso" Header="  Progreso  " IsEnabled="False">
         <DockPanel Margin="8">
           <StackPanel DockPanel.Dock="Top">
             <TextBlock x:Name="TxtProgreso" FontSize="18" FontWeight="Bold" Text="Todavia no se ha instalado ni aplicado nada."/>
@@ -474,11 +476,11 @@ function Log($texto) {
 }
 
 function Bloquear($si) {
-    foreach ($b in "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada",
+    foreach ($b in "BtnComenzar", "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada",
                    "BtnInstalar", "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$b].IsEnabled = -not $si
     }
-    if (-not $si -and -not $script:pc.Winget) { $script:ui.BtnInstalar.IsEnabled = $false }
+    if (-not $si -and -not $script:pc.Winget) { $script:ui.BtnInstalar.IsEnabled = $false; $script:ui.BtnTodo.IsEnabled = $false }
     if (-not $si -and -not $script:pc.Driver) { $script:ui.BtnDriverPagina.IsEnabled = $false; $script:ui.BtnDriverInstalar.IsEnabled = $false }
     Pump
 }
@@ -629,7 +631,13 @@ function Mostrar-InfoPC {
     # Recomendaciones
     $r = @()
     if (-not $pc.Winget) {
-        $r += "- winget no esta instalado: actualiza 'App Installer' desde la Microsoft Store y vuelve a abrir el instalador. Sin winget no se puede instalar nada."
+        if ($script:sinInternet) {
+            $r += "- No hay internet y falta winget: conectate a internet y presiona 'Volver a escanear' (winget se instala solo)."
+        } else {
+            $r += "- No se pudo instalar winget automaticamente. Abre la Microsoft Store, busca 'Instalador de aplicacion' (App Installer), actualizalo y presiona 'Volver a escanear'."
+        }
+    } elseif ($script:sinInternet) {
+        $r += "- No hay conexion a internet: conectate y presiona 'Volver a escanear' antes de instalar."
     }
     if ($pc.Build -lt 19041) {
         $r += "- Tu Windows es anterior a Windows 10 2004: conviene actualizarlo. HAGS no esta disponible."
@@ -673,9 +681,71 @@ function Mostrar-InfoPC {
     $script:ui.TxtRecom.Text = $r -join "`n"
 }
 
+function Test-Winget { [bool](Get-Command winget -ErrorAction SilentlyContinue) }
+
+function Test-Internet {
+    try {
+        Invoke-WebRequest "https://github.com" -Method Head -UseBasicParsing -TimeoutSec 10 | Out-Null
+        return $true
+    } catch {
+        return [bool]$_.Exception.Response   # respondio con error HTTP: igual hay internet
+    }
+}
+
+# Descarga un archivo sin congelar la ventana
+function Descargar($url, $destino) {
+    $wc = New-Object System.Net.WebClient
+    $tarea = $wc.DownloadFileTaskAsync($url, $destino)
+    while (-not $tarea.IsCompleted) { Pump; Start-Sleep -Milliseconds 200 }
+    if ($tarea.IsFaulted) { throw $tarea.Exception.InnerException }
+}
+
+# Instala winget (App Installer) si falta. Devuelve $true si quedo listo.
+function Instalar-Winget {
+    # 1. En una PC recien formateada suele venir pero sin activar: registrarlo es instantaneo
+    Log "Activando winget (App Installer)..."
+    try { Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ErrorAction Stop } catch { }
+    if (Test-Winget) { Log "  OK"; return $true }
+
+    # 2. Descargarlo de la pagina oficial de Microsoft en GitHub, con sus dependencias
+    $base = "https://github.com/microsoft/winget-cli/releases/latest/download"
+    $dir  = Join-Path $env:TEMP "pcgamer-winget"
+    $arq  = if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { "arm64" } else { "x64" }
+    try {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        Log "Descargando winget desde Microsoft (unos 60 MB, puede tardar un par de minutos)..."
+        Descargar "$base/DesktopAppInstaller_Dependencies.zip" "$dir\deps.zip"
+        Descargar "$base/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "$dir\winget.msixbundle"
+        Expand-Archive -Path "$dir\deps.zip" -DestinationPath "$dir\deps" -Force
+        foreach ($dep in (Get-ChildItem "$dir\deps\$arq" -Filter *.appx)) {
+            Log "  Instalando $($dep.Name)..."
+            try { Add-AppxPackage -Path $dep.FullName -ErrorAction Stop }
+            catch { Log "    (ya estaba o hay una version mas nueva, se sigue)" }
+            Pump
+        }
+        Log "  Instalando winget..."
+        Add-AppxPackage -Path "$dir\winget.msixbundle" -ErrorAction Stop
+    } catch {
+        Log "  No se pudo instalar winget: $($_.Exception.Message)"
+    } finally {
+        Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    # La carpeta de winget puede no estar todavia en el PATH de esta ventana
+    $apps = Join-Path $env:LOCALAPPDATA "Microsoft\WindowsApps"
+    if ($env:Path -notlike "*$apps*") { $env:Path += ";$apps" }
+    if (Test-Winget) { Log "  winget instalado."; return $true }
+    return $false
+}
+
 function Escanear {
     Bloquear $true
     $script:ui.TxtInfo.Text = "Escaneando..."
+    $script:sinInternet = -not (Test-Internet)
+    if ($script:sinInternet) { Log "AVISO: no hay conexion a internet. Se puede ver el analisis, pero no instalar." }
+    if (-not (Test-Winget)) {
+        if ($script:sinInternet) { Log "Falta winget y sin internet no se puede instalar." }
+        elseif (-not (Instalar-Winget)) { Log "No se pudo instalar winget: mira las recomendaciones en Mi PC." }
+    }
     Log "Escaneando la PC (Windows, hardware, perifericos y apps instaladas). Puede tardar unos segundos..."
     $script:pc = Get-InfoPC
     Mostrar-InfoPC
@@ -685,6 +755,11 @@ function Escanear {
     Llenar-Panel $script:ui.PnlExtras      $script:extras
     Llenar-Panel $script:ui.PnlPerifericos $script:perifericos
     Llenar-Panel $script:ui.PnlAjustes     $script:ajustes
+    # Despues del primer analisis se muestra todo
+    $ui = $script:ui
+    $ui.BtnComenzar.Visibility = "Collapsed"
+    foreach ($c in "BtnTodo", "BtnEscanear", "GrpInfo", "GrpRecom") { $ui[$c].Visibility = "Visible" }
+    foreach ($t in "TabDriver", "TabProgramas", "TabOptimizar", "TabProgreso") { $ui[$t].IsEnabled = $true }
     Log "Listo. Revisa las pestanas 1. Driver, 2. Programas y 3. Optimizar, o usa 'Hacer todo lo recomendado'."
     Bloquear $false
 }
@@ -1025,7 +1100,7 @@ function Abrir-Ventana {
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))
     $script:ui = @{}
-    foreach ($n in "Tabs", "TabProgreso", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlExtras", "PnlPerifericos", "PnlAjustes",
+    foreach ($n in "Tabs", "TabProgreso", "TabDriver", "TabProgramas", "TabOptimizar", "GrpInfo", "GrpRecom", "BtnComenzar", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlExtras", "PnlPerifericos", "PnlAjustes",
                    "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
                    "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$n] = $script:window.FindName($n)
@@ -1033,7 +1108,13 @@ function Abrir-Ventana {
     $script:pc = @{}
 
     Conectar-Eventos
-    $script:window.Add_ContentRendered({ Escanear })
+    $script:ui.BtnComenzar.Add_Click({ Escanear })
+    # Cualquier error inesperado va al registro en vez de cerrar la ventana
+    $script:window.Dispatcher.Add_UnhandledException({
+        param($sender, $e)
+        try { Log "ERROR inesperado: $($e.Exception.Message)"; Bloquear $false } catch { }
+        $e.Handled = $true
+    })
     [void]$script:window.ShowDialog()
 }
 

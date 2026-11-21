@@ -12,6 +12,9 @@ Proyecto personal: no tiene relacion con trabajo.
   Revertir), deteccion (`Get-InfoPC`), ventana (XAML + `Conectar-Eventos`) y `Main` (auto-elevacion y ShowDialog).
   Pestanas en orden de fases: Mi PC, 1. Driver, 2. Programas, 3. Optimizar (`Fase-Driver`, `Fase-Programas`,
   `Fase-Optimizar`); el boton "Hacer todo lo recomendado" las corre seguidas y ofrece reiniciar una sola vez.
+  Inicio: nada se escanea hasta presionar "Comenzar analisis"; las pestanas 1-3 se activan despues del primer analisis.
+  Si falta winget, `Instalar-Winget` lo registra o lo descarga de github.com/microsoft/winget-cli (con dependencias).
+  Errores no atrapados de la ventana van al registro (Dispatcher.UnhandledException), no cierran la ventana.
   Pestana Progreso: `Iniciar-Progreso`, `Empezar-Item`, `Terminar-Item`, `Terminar-Progreso`. Cada app tiene `Web`
   (dominio oficial) para su icono, via el servicio de favicons de Google.
   En `$drivers`, `Id` vacio = ID de winget no verificado todavia (se abre la pagina oficial).
