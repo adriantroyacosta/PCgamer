@@ -20,8 +20,8 @@ $UrlScript = "https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/in
 $script:launchers = @(
     @{ Nombre = "Steam"; Web = "steampowered.com";            Id = "Valve.Steam";                 Detectar = '^Steam$' },
     @{ Nombre = "EA app"; Web = "ea.com";           Id = "ElectronicArts.EADesktop";    Detectar = '^EA app$' },
-    @{ Nombre = "Epic Games"; Web = "epicgames.com";       Id = "EpicGames.EpicGamesLauncher"; Detectar = 'Epic Games Launcher' },
-    @{ Nombre = "GOG Galaxy"; Web = "gog.com";       Id = "GOG.Galaxy";                  Detectar = 'GOG GALAXY' },
+    @{ Nombre = "Epic Games"; Web = "epicgames.com";       Id = "EpicGames.EpicGamesLauncher"; Alternativa = "XP99VR1BPSBQJ2"; Detectar = 'Epic Games Launcher' },
+    @{ Nombre = "GOG Galaxy"; Web = "gog.com";       Id = "GOG.Galaxy";                  Alternativa = "XPFFXW40W60KCF"; Detectar = 'GOG GALAXY' },
     @{ Nombre = "Ubisoft Connect"; Web = "ubisoft.com";  Id = "Ubisoft.Connect";             Detectar = 'Ubisoft Connect' },
     @{ Nombre = "Battle.net"; Web = "battle.net";       Id = "Blizzard.BattleNet";          Detectar = '^Battle\.net$' },
     @{ Nombre = "Xbox"; Web = "xbox.com";             Id = "9MV0B5HZVK9Z"; Fuente = "msstore"; Detectar = '^Microsoft\.GamingApp$' },
@@ -65,6 +65,7 @@ $script:extras = @(
 )
 
 # Web = dominio oficial, solo para mostrar su icono en la ventana
+# Alternativa = ID de la Microsoft Store que se prueba si la instalacion normal falla
 # Vid = ID de fabricante USB, para detectar si hay un periferico de esa marca conectado
 $script:perifericos = @(
     @{ Nombre = "Corsair iCUE 5"; Web = "corsair.com";   Id = "Corsair.iCUE.5";          Marca = "Corsair";     Vid = "1B1C"; Detectar = '^iCUE|^Corsair iCUE ?5? ?Software' },
@@ -449,7 +450,12 @@ $script:xaml = @'
       <TabItem x:Name="TabProgreso" Header="  Progreso  " IsEnabled="False">
         <DockPanel Margin="8">
           <StackPanel DockPanel.Dock="Top">
-            <TextBlock x:Name="TxtProgreso" FontSize="18" FontWeight="Bold" Text="Todavia no se ha instalado ni aplicado nada."/>
+            <DockPanel>
+              <Button x:Name="BtnSaltar" DockPanel.Dock="Right" Content="Saltar este programa" Visibility="Collapsed"
+                      Style="{StaticResource Secundario}" ToolTip="Cancela el programa que se esta instalando y sigue con el siguiente"/>
+              <TextBlock x:Name="TxtProgreso" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"
+                         Text="Todavia no se ha instalado ni aplicado nada."/>
+            </DockPanel>
             <ProgressBar x:Name="BarProgreso" Height="18" Margin="0,10" Minimum="0" Maximum="1" Value="0"/>
             <TextBlock x:Name="TxtResumen" TextWrapping="Wrap" FontSize="14" Margin="0,0,0,8"/>
           </StackPanel>
@@ -764,30 +770,92 @@ function Escanear {
     Bloquear $false
 }
 
-# Instala una app con winget sin congelar la ventana. Devuelve ok, yaEstaba o fallo.
-function Instalar-App($app) {
-    Log "Instalando $($app.Nombre)..."
-    $wargs = @("install", "--id", $app.Id, "-e", "--silent",
+$script:limiteMinutos = 20   # si un programa tarda mas, se cancela y se sigue con el siguiente
+
+function Formato-Tiempo($ts) { "{0}:{1:00}" -f [int][Math]::Floor($ts.TotalMinutes), $ts.Seconds }
+
+# Explicacion corta de los codigos de error de winget mas comunes
+function Texto-Error($codigo) {
+    switch ($codigo) {
+        -1978335159 { "fallo el instalador (MSI)" }
+        -1978335212 { "winget no encontro el paquete" }
+        -1978334975 { "la app esta abierta: cierrala y reintenta" }
+        -1978334974 { "habia otra instalacion en curso" }
+        -1978334973 { "un archivo esta en uso" }
+        -1978334972 { "falta una dependencia" }
+        -1978334971 { "no hay espacio en el disco" }
+        -1978334969 { "sin conexion a internet" }
+        default     { "codigo $codigo" }
+    }
+}
+
+# Corre un winget install sin congelar la ventana, mostrando el tiempo.
+# Devuelve el codigo de salida, o "saltado" / "tiempo".
+function Ejecutar-Winget($app, $id, $fuente) {
+    $wargs = @("install", "--id", $id, "-e", "--silent",
                "--accept-package-agreements", "--accept-source-agreements")
-    if ($app.Fuente) { $wargs += @("--source", $app.Fuente) }
-    $codigo = $null
+    if ($fuente) { $wargs += @("--source", $fuente) }
     try {
         $p = Start-Process winget -ArgumentList $wargs -WindowStyle Hidden -PassThru -ErrorAction Stop
-        $null = $p.Handle   # necesario para leer ExitCode en PowerShell 5.1
-        while (-not $p.HasExited) { Pump; Start-Sleep -Milliseconds 200 }
-        $p.WaitForExit()
-        $codigo = $p.ExitCode
     } catch {
         # Si Windows no deja abrir el proceso aparte, se instala aqui (la ventana se congela un rato)
         & winget @wargs | Out-Null
-        $codigo = $LASTEXITCODE
+        return $LASTEXITCODE
     }
-    switch ($codigo) {
-        0           { Log "  OK";            return "ok" }
-        -1978335189 { Log "  Ya estaba";     return "yaEstaba" }   # ya instalado / sin cambios
-        -1978335135 { Log "  Ya estaba";     return "yaEstaba" }   # ya instalado
-        default     { Log "  FALLO (codigo $codigo)"; return "fallo" }
+    $null = $p.Handle   # necesario para leer ExitCode en PowerShell 5.1
+    $ultimo = -1
+    while (-not $p.HasExited) {
+        Pump
+        Start-Sleep -Milliseconds 250
+        $t = (Get-Date) - $script:inicioItem
+        if ([int]$t.TotalSeconds -ne $ultimo) {
+            $ultimo = [int]$t.TotalSeconds
+            $reloj = Formato-Tiempo $t
+            Set-Estado $app "Instalando... $reloj" "#2563EB"
+            $pr = $script:progreso
+            $script:ui.TxtProgreso.Text = "Instalando $($pr.Hechos + 1) de $($pr.Total): $($app.Nombre)  ($reloj)"
+        }
+        if ($script:saltar -or $t.TotalMinutes -ge $script:limiteMinutos) {
+            # Corta winget y el instalador que haya abierto
+            & taskkill /PID $p.Id /T /F 2>&1 | Out-Null
+            if ($script:saltar) { return "saltado" } else { return "tiempo" }
+        }
     }
+    $p.WaitForExit()
+    return $p.ExitCode
+}
+
+# Instala una app. Devuelve ok, yaEstaba, fallo, saltado o tiempo.
+# Si falla: reintenta una vez si habia otra instalacion en curso, y prueba la version de la Store si la tiene.
+function Instalar-App($app) {
+    Log "Instalando $($app.Nombre)..."
+    $script:inicioItem = Get-Date
+    $script:saltar = $false
+    $intentos = @(@{ Id = $app.Id; Fuente = $app.Fuente })
+    if ($app.Alternativa) { $intentos += @{ Id = $app.Alternativa; Fuente = "msstore"; Store = $true } }
+
+    foreach ($in in $intentos) {
+        if ($in.Store) { Log "  Probando desde la Microsoft Store..." }
+        $codigo = Ejecutar-Winget $app $in.Id $in.Fuente
+        if ($codigo -eq -1978334974) {
+            Log "  Habia otra instalacion en curso. Esperando 30 segundos y reintentando..."
+            $fin = (Get-Date).AddSeconds(30)
+            while ((Get-Date) -lt $fin -and -not $script:saltar) { Pump; Start-Sleep -Milliseconds 250 }
+            if (-not $script:saltar) { $codigo = Ejecutar-Winget $app $in.Id $in.Fuente }
+        }
+        $app.Duracion = Formato-Tiempo ((Get-Date) - $script:inicioItem)
+        switch ($codigo) {
+            0            { Log "  OK ($($app.Duracion))"; return "ok" }
+            -1978334967  { Log "  OK, pide reiniciar ($($app.Duracion))"; return "ok" }
+            -1978335189  { Log "  Ya estaba"; return "yaEstaba" }
+            -1978335135  { Log "  Ya estaba"; return "yaEstaba" }
+            "saltado"    { Log "  Saltado por el usuario ($($app.Duracion))"; return "saltado" }
+            "tiempo"     { Log "  Cancelado: tardo mas de $($script:limiteMinutos) minutos"; return "tiempo" }
+        }
+        $app.Error = Texto-Error $codigo
+        Log "  FALLO: $($app.Error)"
+    }
+    return "fallo"
 }
 
 function Confirmar($texto) {
@@ -856,7 +924,10 @@ function Iniciar-Progreso($items, $titulo) {
     $ui.TxtProgreso.Text = $titulo
     $ui.TxtResumen.Text = ""
     $ui.Tabs.SelectedItem = $ui.TabProgreso
-    $script:progreso = @{ Total = $items.Count; Hechos = 0; ok = @(); yaEstaba = @(); aplicado = @(); fallo = @(); manual = @() }
+    foreach ($it in $items) { $it.Duracion = $null; $it.Error = $null }
+    $script:progreso = @{ Total = $items.Count; Hechos = 0; ok = @(); yaEstaba = @(); aplicado = @(); fallo = @(); manual = @(); saltado = @(); Inicio = Get-Date }
+    $ui.BtnSaltar.Visibility = "Visible"
+    $ui.BtnSaltar.IsEnabled = $true
     Pump
 }
 
@@ -875,12 +946,17 @@ function Empezar-Item($it, $verbo) {
 function Terminar-Item($it, $resultado) {
     $p = $script:progreso
     switch ($resultado) {
-        "ok"        { Set-Estado $it "$($script:ok) Instalado"            "#16A34A"; $p.ok += $it.Nombre }
+        "ok"        { Set-Estado $it "$($script:ok) Instalado ($($it.Duracion))" "#16A34A"; $p.ok += $it.Nombre }
         "yaEstaba"  { Set-Estado $it "$($script:ok) Ya estaba instalado"  "#16A34A"; $p.yaEstaba += $it.Nombre }
         "aplicado"  { Set-Estado $it "$($script:ok) Aplicado"             "#16A34A"; $p.aplicado += $it.Nombre }
         "revertido" { Set-Estado $it "$($script:ok) Revertido"            "#16A34A"; $p.aplicado += $it.Nombre }
         "manual"    { Set-Estado $it "Instalar a mano (se abrio su pagina)" "#D97706"; $p.manual += $it.Nombre }
-        default     { Set-Estado $it "$($script:mal) Fallo"               "#DC2626"; $p.fallo += $it.Nombre }
+        "saltado"   { Set-Estado $it "Saltado ($($it.Duracion))"         "#D97706"; $p.saltado += $it.Nombre }
+        "tiempo"    { Set-Estado $it "$($script:mal) Tardo demasiado ($($script:limiteMinutos) min)" "#DC2626"; $p.fallo += $it.Nombre }
+        default     {
+            $motivo = if ($it.Error) { ": $($it.Error)" } else { "" }
+            Set-Estado $it "$($script:mal) Fallo$motivo" "#DC2626"; $p.fallo += $it.Nombre
+        }
     }
     $p.Hechos++
     $script:ui.BarProgreso.Value = $p.Hechos
@@ -891,12 +967,15 @@ function Terminar-Progreso {
     $p = $script:progreso
     $ui = $script:ui
     $ui.BarProgreso.Value = $ui.BarProgreso.Maximum
-    $ui.TxtProgreso.Text = if ($p.fallo.Count) { "Terminado, con $($p.fallo.Count) error(es)" } else { "$($script:ok) Terminado" }
+    $ui.BtnSaltar.Visibility = "Collapsed"
+    $total = Formato-Tiempo ((Get-Date) - $p.Inicio)
+    $ui.TxtProgreso.Text = if ($p.fallo.Count) { "Terminado en $total, con $($p.fallo.Count) error(es)" } else { "$($script:ok) Terminado en $total" }
     $r = @()
     if ($p.ok.Count)       { $r += "Instalados ($($p.ok.Count)): $($p.ok -join ', ')" }
     if ($p.yaEstaba.Count) { $r += "Ya estaban ($($p.yaEstaba.Count)): $($p.yaEstaba -join ', ')" }
     if ($p.aplicado.Count) { $r += "Ajustes ($($p.aplicado.Count)): $($p.aplicado -join ', ')" }
     if ($p.manual.Count)   { $r += "A mano ($($p.manual.Count)): $($p.manual -join ', ')" }
+    if ($p.saltado.Count)  { $r += "Saltados ($($p.saltado.Count)): $($p.saltado -join ', ')" }
     if ($p.fallo.Count)    { $r += "Fallaron ($($p.fallo.Count)): $($p.fallo -join ', ') -> vuelve a intentar o instalalos a mano." }
     $ui.TxtResumen.Text = $r -join "`n"
     foreach ($linea in $r) { Log $linea }
@@ -1100,7 +1179,7 @@ function Abrir-Ventana {
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))
     $script:ui = @{}
-    foreach ($n in "Tabs", "TabProgreso", "TabDriver", "TabProgramas", "TabOptimizar", "GrpInfo", "GrpRecom", "BtnComenzar", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlExtras", "PnlPerifericos", "PnlAjustes",
+    foreach ($n in "BtnSaltar", "Tabs", "TabProgreso", "TabDriver", "TabProgramas", "TabOptimizar", "GrpInfo", "GrpRecom", "BtnComenzar", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlExtras", "PnlPerifericos", "PnlAjustes",
                    "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
                    "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
         $script:ui[$n] = $script:window.FindName($n)
@@ -1109,6 +1188,11 @@ function Abrir-Ventana {
 
     Conectar-Eventos
     $script:ui.BtnComenzar.Add_Click({ Escanear })
+    $script:ui.BtnSaltar.Add_Click({
+        $script:saltar = $true
+        $script:ui.BtnSaltar.IsEnabled = $false
+        Log "  Saltando..."
+    })
     # Cualquier error inesperado va al registro en vez de cerrar la ventana
     $script:window.Dispatcher.Add_UnhandledException({
         param($sender, $e)

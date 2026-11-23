@@ -15,7 +15,10 @@ Proyecto personal: no tiene relacion con trabajo.
   Inicio: nada se escanea hasta presionar "Comenzar analisis"; las pestanas 1-3 se activan despues del primer analisis.
   Si falta winget, `Instalar-Winget` lo registra o lo descarga de github.com/microsoft/winget-cli (con dependencias).
   Errores no atrapados de la ventana van al registro (Dispatcher.UnhandledException), no cierran la ventana.
-  Pestana Progreso: `Iniciar-Progreso`, `Empezar-Item`, `Terminar-Item`, `Terminar-Progreso`. Cada app tiene `Web`
+  Pestana Progreso: `Iniciar-Progreso`, `Empezar-Item`, `Terminar-Item`, `Terminar-Progreso`.
+  `Ejecutar-Winget` muestra el tiempo, corta con `taskkill /T` si se presiona Saltar o pasan `$limiteMinutos` (20).
+  `Instalar-App` reintenta si habia otra instalacion en curso y prueba `Alternativa` (ID de la Store) si falla.
+  `Texto-Error` traduce codigos de winget (tabla: winget-cli doc/windows/package-manager/winget/returnCodes.md). Cada app tiene `Web`
   (dominio oficial) para su icono, via el servicio de favicons de Google.
   En `$drivers`, `Id` vacio = ID de winget no verificado todavia (se abre la pagina oficial).
   Se publica en GitHub y se ejecuta con `irm https://raw.githubusercontent.com/adriantroyacosta/PCgamer/main/instalar.ps1 | iex`.
