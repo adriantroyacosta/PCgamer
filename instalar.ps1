@@ -89,6 +89,43 @@ $script:drivers = @{
     Intel  = @{ Nombre = "Intel Driver & Support Assistant"; Web = "intel.com"; Id = "Intel.IntelDriverAndSupportAssistant"; Url = "https://www.intel.la/content/www/xl/es/support/detect.html";        Detectar = '^Intel.*Driver.*Support Assistant' }
 }
 
+# Descripcion corta de cada app (se muestra en su tarjeta)
+$script:info = @{
+    "Steam"                   = "La tienda y biblioteca de juegos de PC mas grande."
+    "EA app"                  = "Battlefield, EA Sports FC y los juegos de EA."
+    "Epic Games"              = "Fortnite y juegos gratis cada semana."
+    "GOG Galaxy"              = "Juegos sin DRM, como Cyberpunk 2077 y The Witcher 3."
+    "Ubisoft Connect"         = "Assassin's Creed, Far Cry y los juegos de Ubisoft."
+    "Battle.net"              = "Call of Duty, Diablo, Overwatch y World of Warcraft."
+    "Xbox"                    = "Game Pass, Call of Duty y Halo desde la Microsoft Store."
+    "Playnite"                = "Todas tus bibliotecas de juegos en un solo lugar."
+    "Riot Games"              = "Valorant y League of Legends. Al marcarlo eliges los juegos y tu region."
+    "Valorant"                = "Shooter tactico 5 contra 5. Incluye Riot Client."
+    "League of Legends + TFT" = "MOBA 5 contra 5 y Teamfight Tactics. Incluye Riot Client."
+    "Google Chrome"           = "El navegador web de Google."
+    "WinRAR"                  = "Abre y crea archivos .rar y .zip."
+    "Transmission"            = "Descargas por torrent, ligero y sin anuncios."
+    "VirtualBox"              = "Maquinas virtuales para probar otros sistemas."
+    "VLC"                     = "Reproduce cualquier video o audio."
+    "iTunes"                  = "Musica y respaldo de tu iPhone."
+    "PC Manager"              = "Limpieza y mantenimiento de Windows, de Microsoft."
+    "Terminal Windows"        = "Consola moderna para PowerShell y CMD."
+    "FanControl"              = "Controla los ventiladores segun la temperatura."
+    "Dolby Access"            = "Sonido envolvente Dolby Atmos para audifonos."
+    "Discord"                 = "Chat de voz y texto con tus amigos mientras juegas."
+    "OBS Studio"              = "Graba y transmite tus partidas."
+    "MSI Afterburner"         = "FPS y temperaturas en pantalla mientras juegas."
+    "HWiNFO"                  = "Sensores y temperaturas de todo tu hardware."
+    "Corsair iCUE 5"          = "RGB, macros y ventiladores de Corsair."
+    "Logitech G HUB"          = "Configura tu mouse, teclado y audifonos Logitech G."
+    "Razer Synapse 4"         = "Configura tus perifericos Razer."
+    "SteelSeries GG"          = "Configura tus perifericos SteelSeries."
+    "Turtle Beach Audio Hub"  = "Configura tus audifonos Turtle Beach."
+    "ROCCAT Swarm II"         = "Configura tus perifericos ROCCAT."
+    "Elgato Stream Deck"      = "Botones para streaming y atajos."
+    "ASUS Armoury Crate"      = "RGB y perifericos ASUS ROG y TUF."
+}
+
 # ---------- AJUSTES (todos reversibles salvo los que lo dicen) ----------
 # Recomendar recibe la info de la PC y devuelve si se marca por defecto.
 
@@ -320,157 +357,286 @@ function Get-InfoPC {
 }
 
 # ---------- VENTANA ----------
+# Estilo de la bienvenida de Windows 11: una pagina a la vez, titulo y explicacion a la izquierda,
+# tarjetas con icono y casilla a la derecha, y flechas abajo para avanzar o volver.
 
 $script:xaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PC Gamer - Instalador" Width="1000" Height="720" MinWidth="760" MinHeight="520"
-        WindowStartupLocation="CenterScreen" Background="#F3F4F6" FontFamily="Segoe UI" FontSize="13">
+        Title="PC Gamer" Width="1280" Height="800" MinWidth="1000" MinHeight="640"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized" Background="#FAFAFA"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14" Foreground="#1B1B1B">
   <Window.Resources>
-    <Style TargetType="Button">
-      <Setter Property="Padding" Value="14,6"/>
-      <Setter Property="Margin" Value="4"/>
-      <Setter Property="Background" Value="#2563EB"/>
+    <Style x:Key="Primario" TargetType="Button">
+      <Setter Property="Background" Value="#0067C0"/>
       <Setter Property="Foreground" Value="White"/>
-      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Padding" Value="28,8"/>
       <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#1975C5"/></Trigger>
+              <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Background" Value="#005A9E"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="b" Property="Opacity" Value="0.4"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
-    <Style x:Key="Secundario" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-      <Setter Property="Background" Value="#E5E7EB"/>
-      <Setter Property="Foreground" Value="#111827"/>
+    <Style x:Key="Enlace" TargetType="Button">
+      <Setter Property="Foreground" Value="#0067C0"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+      <Setter Property="Margin" Value="0,6,0,0"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <TextBlock x:Name="t" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Foreground="{TemplateBinding Foreground}"/>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="t" Property="TextDecorations" Value="Underline"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="t" Property="Opacity" Value="0.4"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
-    <Style TargetType="CheckBox">
-      <Setter Property="Margin" Value="2,4"/>
+    <Style x:Key="Nav" TargetType="Button">
+      <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="b" Background="White" BorderBrush="#E5E5E5" BorderThickness="1" CornerRadius="4">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#F3F3F3"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter TargetName="b" Property="Opacity" Value="0.35"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
     </Style>
-    <Style TargetType="GroupBox">
-      <Setter Property="Margin" Value="6"/>
-      <Setter Property="Padding" Value="8"/>
-      <Setter Property="Background" Value="White"/>
-      <Setter Property="BorderBrush" Value="#D1D5DB"/>
+    <Style x:Key="Titulo" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
+      <Setter Property="FontSize" Value="40"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="Margin" Value="0,0,0,20"/>
+    </Style>
+    <Style x:Key="Desc" TargetType="TextBlock">
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="Foreground" Value="#5F5F5F"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="LineHeight" Value="24"/>
+      <Setter Property="Margin" Value="0,0,0,24"/>
+    </Style>
+    <Style x:Key="Izq" TargetType="StackPanel">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="56,0,40,0"/>
+    </Style>
+    <Style x:Key="Der" TargetType="ScrollViewer">
+      <Setter Property="Grid.Column" Value="1"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+      <Setter Property="Margin" Value="0,40,48,16"/>
+      <Setter Property="Padding" Value="0,0,8,0"/>
     </Style>
   </Window.Resources>
 
-  <DockPanel>
-    <TextBox x:Name="Log" DockPanel.Dock="Bottom" Height="130" IsReadOnly="True" TextWrapping="Wrap"
-             VerticalScrollBarVisibility="Auto" Background="#111827" Foreground="#D1FAE5"
-             FontFamily="Consolas" FontSize="12" BorderThickness="0" Padding="8"/>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
 
-    <TabControl x:Name="Tabs" Margin="8" Padding="4">
-      <TabItem Header="  Mi PC  ">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-          <StackPanel Margin="6">
-            <Border Background="#FEF3C7" BorderBrush="#F59E0B" BorderThickness="1" CornerRadius="4" Padding="10" Margin="6">
-              <TextBlock TextWrapping="Wrap">
-                <Bold>Bienvenido.</Bold> Antes de empezar, conecta todos tus perifericos (teclado, mouse, headset, control)
-                para que se detecten y se recomiende su programa. Luego presiona <Bold>Comenzar analisis</Bold>: revisa tu PC
-                sin instalar ni cambiar nada (si falta winget, el instalador lo instala solo).
-                Despues el orden es <Bold>1. Driver</Bold>, <Bold>2. Programas</Bold> y <Bold>3. Optimizar</Bold>, con un solo reinicio al final.
-                Lo recomendado ya viene marcado en cada pestana, pero puedes marcar o desmarcar lo que quieras.
-                Usa <Bold>Hacer todo lo recomendado</Bold> para correr las 3 fases seguidas, o ve pestana por pestana.
-                Nada se instala ni cambia hasta que confirmes.
-              </TextBlock>
-            </Border>
-            <WrapPanel Margin="2">
-              <Button x:Name="BtnComenzar" Content="Comenzar analisis" FontWeight="Bold" FontSize="16" Padding="28,12"/>
-              <Button x:Name="BtnTodo" Content="Hacer todo lo recomendado (1 &gt; 2 &gt; 3)" FontWeight="Bold" Padding="18,8" Visibility="Collapsed"/>
-              <Button x:Name="BtnEscanear" Content="Volver a escanear" Style="{StaticResource Secundario}" Visibility="Collapsed"/>
-            </WrapPanel>
-            <GroupBox x:Name="GrpInfo" Header="Tu PC" Visibility="Collapsed">
-              <TextBlock x:Name="TxtInfo" FontFamily="Consolas" TextWrapping="Wrap" Text="Escaneando..."/>
-            </GroupBox>
-            <GroupBox x:Name="GrpRecom" Header="Recomendaciones para tu PC" Visibility="Collapsed">
-              <TextBlock x:Name="TxtRecom" TextWrapping="Wrap" LineHeight="22"/>
-            </GroupBox>
+    <Grid>
+      <!-- 0. Inicio -->
+      <Grid x:Name="PagInicio">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock x:Name="TxtHola" Style="{StaticResource Titulo}" Text="Hola"/>
+          <TextBlock Style="{StaticResource Desc}" Text="Vamos a dejar tu PC lista para jugar: driver de video, programas y optimizacion de Windows, con un solo reinicio al final. Antes de empezar, conecta tus perifericos (teclado, mouse, audifonos) para que se detecten."/>
+          <Button x:Name="BtnComenzar" Style="{StaticResource Primario}" Content="Comenzar"/>
+        </StackPanel>
+        <Border Grid.Column="1" Margin="40,64,0,64" CornerRadius="12,0,0,12">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+              <GradientStop Color="#0B1F4D" Offset="0"/>
+              <GradientStop Color="#0067C0" Offset="0.55"/>
+              <GradientStop Color="#7C3AED" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="&#xE7FC;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="150" Foreground="White" HorizontalAlignment="Center"/>
+            <TextBlock Text="PC Gamer" FontSize="40" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+            <TextBlock Text="Driver   -   Programas   -   Optimizacion" FontSize="16" Foreground="#DBEAFE" HorizontalAlignment="Center" Margin="0,8,0,0"/>
           </StackPanel>
-        </ScrollViewer>
-      </TabItem>
+        </Border>
+      </Grid>
 
-      <TabItem x:Name="TabDriver" Header="  1. Driver  " IsEnabled="False">
-        <DockPanel Margin="4">
-          <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
-            <Button x:Name="BtnDriverPagina" DockPanel.Dock="Left" Content="Abrir pagina oficial" Style="{StaticResource Secundario}"/>
-            <Button x:Name="BtnDriverInstalar" DockPanel.Dock="Right" Content="Instalar driver"/>
-          </DockPanel>
-          <StackPanel>
-            <TextBlock Margin="8,4" Foreground="#4B5563" TextWrapping="Wrap"
-                       Text="Va primero: los juegos y algunos ajustes de Optimizar (como HAGS) dependen del driver de la tarjeta de video."/>
-            <GroupBox Header="Tarjeta de video">
-              <StackPanel>
-                <TextBlock x:Name="TxtDriver" TextWrapping="Wrap" LineHeight="22"/>
-                <CheckBox x:Name="ChkDriver" Margin="2,10,2,2" FontWeight="Bold"/>
-              </StackPanel>
-            </GroupBox>
+      <!-- 1. Tu PC -->
+      <Grid x:Name="PagMiPC" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Esta es tu PC"/>
+          <TextBlock Style="{StaticResource Desc}" Text="Revisamos tu hardware, tus perifericos y lo que ya tienes instalado. Con esto, en los siguientes pasos ya viene marcado lo recomendado para ti. Nada se instala hasta el final."/>
+          <Button x:Name="BtnEscanear" Style="{StaticResource Enlace}" Content="Volver a analizar (si conectaste algo nuevo)"/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlInfo"/></ScrollViewer>
+      </Grid>
+
+      <!-- 2. Driver -->
+      <Grid x:Name="PagDriver" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Driver de video"/>
+          <TextBlock x:Name="TxtDriver" Style="{StaticResource Desc}"/>
+          <Button x:Name="BtnDriverPagina" Style="{StaticResource Enlace}" Content="Abrir la pagina oficial del driver"/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlDriver"/></ScrollViewer>
+      </Grid>
+
+      <!-- 3. Launchers -->
+      <Grid x:Name="PagLaunchers" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Tus launchers de juegos"/>
+          <TextBlock Style="{StaticResource Desc}" Text="Las tiendas donde estan tus juegos. Lo que te falta viene marcado y lo que ya tienes lleva un check verde. Marca o desmarca lo que quieras: haz clic en cualquier parte de la tarjeta."/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlLaunchers"/></ScrollViewer>
+      </Grid>
+
+      <!-- 4. Utilidades -->
+      <Grid x:Name="PagUtilidades" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Agrega aplicaciones utiles"/>
+          <TextBlock Style="{StaticResource Desc}" Text="Programas para el dia a dia: navegador, archivos comprimidos, videos y mantenimiento de tu PC."/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlUtilidades"/></ScrollViewer>
+      </Grid>
+
+      <!-- 5. Extras -->
+      <Grid x:Name="PagExtras" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Extras para gamers"/>
+          <TextBlock Style="{StaticResource Desc}" Text="Los mas populares para chatear, grabar tus partidas y ver tus FPS y temperaturas. Vienen sin marcar para no llenar tu PC: elige solo lo que vayas a usar."/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlExtras"/></ScrollViewer>
+      </Grid>
+
+      <!-- 6. Perifericos -->
+      <Grid x:Name="PagPerifericos" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Tus perifericos"/>
+          <TextBlock x:Name="TxtPerif" Style="{StaticResource Desc}"/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlPerifericos"/></ScrollViewer>
+      </Grid>
+
+      <!-- 7. Optimizar -->
+      <Grid x:Name="PagOptimizar" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Optimiza Windows para jugar"/>
+          <TextBlock Style="{StaticResource Desc}" Text="Ajustes recomendados segun tu PC (escritorio o laptop, RAM y version de Windows). Todos se pueden revertir, menos la limpieza de temporales. Ninguno toca Xbox, la Store ni OneDrive."/>
+          <Button x:Name="BtnAjRec" Style="{StaticResource Enlace}" Content="Marcar solo los recomendados"/>
+          <Button x:Name="BtnAjNada" Style="{StaticResource Enlace}" Content="Desmarcar todos"/>
+          <Button x:Name="BtnRevertir" Style="{StaticResource Enlace}" Content="Revertir ahora los ajustes marcados"/>
+          <Button x:Name="BtnWinUtil" Style="{StaticResource Enlace}" Content="Abrir WinUtil (opcional, para usuarios avanzados)"/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlAjustes"/></ScrollViewer>
+      </Grid>
+
+      <!-- 8. Resumen -->
+      <Grid x:Name="PagResumen" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Todo listo para empezar"/>
+          <TextBlock x:Name="TxtResumenDesc" Style="{StaticResource Desc}" Text="Esto es lo que se va a hacer, en este orden. Puedes dejar la PC sola mientras se instala. Si quieres cambiar algo, vuelve con la flecha."/>
+          <Button x:Name="BtnInstalar" Style="{StaticResource Primario}" Content="Instalar y optimizar"/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlResumen"/></ScrollViewer>
+      </Grid>
+
+      <!-- 9. Progreso -->
+      <Grid x:Name="PagProgreso" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock Style="{StaticResource Titulo}" Text="Preparando tu PC"/>
+          <TextBlock x:Name="TxtProgreso" Style="{StaticResource Desc}" Text="Empezando..."/>
+          <ProgressBar x:Name="BarProgreso" Height="6" Minimum="0" Maximum="1" Value="0" Foreground="#0067C0" Background="#E5E5E5" BorderThickness="0" Margin="0,0,0,20"/>
+          <Button x:Name="BtnSaltar" Style="{StaticResource Enlace}" Content="Saltar este programa (si se quedo pegado)"/>
+          <Button x:Name="BtnDetalles" Style="{StaticResource Enlace}" Content="Ver detalles"/>
+          <TextBox x:Name="Log" Visibility="Collapsed" Height="200" Margin="0,16,0,0" IsReadOnly="True" TextWrapping="Wrap"
+                   VerticalScrollBarVisibility="Auto" Background="#1B1B1B" Foreground="#D1FAE5" FontFamily="Consolas"
+                   FontSize="12" BorderThickness="0" Padding="8"/>
+        </StackPanel>
+        <ScrollViewer Style="{StaticResource Der}"><StackPanel x:Name="PnlProgreso"/></ScrollViewer>
+      </Grid>
+
+      <!-- 10. Final -->
+      <Grid x:Name="PagFinal" Visibility="Collapsed">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="5*"/><ColumnDefinition Width="6*"/></Grid.ColumnDefinitions>
+        <StackPanel Style="{StaticResource Izq}">
+          <TextBlock x:Name="TxtFinalTitulo" Style="{StaticResource Titulo}" Text="Todo listo"/>
+          <TextBlock x:Name="TxtResumen" Style="{StaticResource Desc}"/>
+          <Button x:Name="BtnReiniciar" Style="{StaticResource Primario}" Content="Reiniciar ahora"/>
+          <Button x:Name="BtnVolver" Style="{StaticResource Enlace}" Content="Volver al inicio" Margin="0,16,0,0"/>
+        </StackPanel>
+        <Border Grid.Column="1" Margin="40,64,0,64" CornerRadius="12,0,0,12">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+              <GradientStop Color="#065F46" Offset="0"/>
+              <GradientStop Color="#0067C0" Offset="0.6"/>
+              <GradientStop Color="#7C3AED" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+          <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="&#xE73E;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="150" Foreground="White" HorizontalAlignment="Center"/>
+            <TextBlock Text="Tu PC esta lista para jugar" FontSize="32" FontWeight="SemiBold" Foreground="White" HorizontalAlignment="Center" Margin="0,20,0,0"/>
           </StackPanel>
-        </DockPanel>
-      </TabItem>
+        </Border>
+      </Grid>
+    </Grid>
 
-      <TabItem x:Name="TabProgramas" Header="  2. Programas  " IsEnabled="False">
-        <DockPanel Margin="4">
-          <WrapPanel DockPanel.Dock="Top">
-            <TextBlock Text="Selecciones:" VerticalAlignment="Center" Margin="4,0,8,0"/>
-            <Button x:Name="BtnAppsRec" Content="Marcar recomendados" Style="{StaticResource Secundario}"/>
-            <Button x:Name="BtnAppsNada" Content="Desmarcar todo" Style="{StaticResource Secundario}"/>
-          </WrapPanel>
-          <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
-            <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Margin="6,0" Foreground="#4B5563"
-                       Text="&#x2714; verde = ya esta instalado en tu PC.   Marcado = recomendado (falta o se detecto conectado)."/>
-            <Button x:Name="BtnInstalar" DockPanel.Dock="Right" Content="Instalar seleccionados"/>
-          </DockPanel>
-          <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <WrapPanel>
-              <GroupBox Header="Launchers de juegos" Width="300"><StackPanel x:Name="PnlLaunchers"/></GroupBox>
-              <GroupBox Header="Utilidades" Width="300"><StackPanel x:Name="PnlUtilidades"/></GroupBox>
-              <GroupBox Header="Extras para gamers (opcional)" Width="300"><StackPanel x:Name="PnlExtras"/></GroupBox>
-              <GroupBox Header="Perifericos" Width="300"><StackPanel x:Name="PnlPerifericos"/></GroupBox>
-            </WrapPanel>
-          </ScrollViewer>
-        </DockPanel>
-      </TabItem>
-
-      <TabItem x:Name="TabOptimizar" Header="  3. Optimizar  " IsEnabled="False">
-        <DockPanel Margin="4">
-          <WrapPanel DockPanel.Dock="Top">
-            <TextBlock Text="Selecciones:" VerticalAlignment="Center" Margin="4,0,8,0"/>
-            <Button x:Name="BtnAjRec" Content="Marcar recomendados" Style="{StaticResource Secundario}"/>
-            <Button x:Name="BtnAjNada" Content="Desmarcar todo" Style="{StaticResource Secundario}"/>
-          </WrapPanel>
-          <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
-            <Button x:Name="BtnWinUtil" DockPanel.Dock="Left" Content="Abrir WinUtil (opcional)" Style="{StaticResource Secundario}"/>
-            <Button x:Name="BtnAplicar" DockPanel.Dock="Right" Content="Aplicar seleccionados"/>
-            <Button x:Name="BtnRevertir" DockPanel.Dock="Right" Content="Revertir seleccionados" Style="{StaticResource Secundario}"/>
-          </DockPanel>
-          <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-              <TextBlock Margin="8,4" Foreground="#4B5563" TextWrapping="Wrap"
-                         Text="Pasa el mouse sobre cada ajuste para ver que hace. Lo recomendado depende de tu PC (escritorio o laptop, RAM, version de Windows). Ninguno toca Xbox, la Store ni OneDrive."/>
-              <GroupBox Header="Ajustes para juegos y privacidad"><StackPanel x:Name="PnlAjustes"/></GroupBox>
-            </StackPanel>
-          </ScrollViewer>
-        </DockPanel>
-      </TabItem>
-      <TabItem x:Name="TabProgreso" Header="  Progreso  " IsEnabled="False">
-        <DockPanel Margin="8">
-          <StackPanel DockPanel.Dock="Top">
-            <DockPanel>
-              <Button x:Name="BtnSaltar" DockPanel.Dock="Right" Content="Saltar este programa" Visibility="Collapsed"
-                      Style="{StaticResource Secundario}" ToolTip="Cancela el programa que se esta instalando y sigue con el siguiente"/>
-              <TextBlock x:Name="TxtProgreso" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" TextWrapping="Wrap"
-                         Text="Todavia no se ha instalado ni aplicado nada."/>
-            </DockPanel>
-            <ProgressBar x:Name="BarProgreso" Height="18" Margin="0,10" Minimum="0" Maximum="1" Value="0"/>
-            <TextBlock x:Name="TxtResumen" TextWrapping="Wrap" FontSize="14" Margin="0,0,0,8"/>
-          </StackPanel>
-          <Border Background="White" BorderBrush="#D1D5DB" BorderThickness="1" Padding="6">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-              <StackPanel x:Name="PnlProgreso"/>
-            </ScrollViewer>
-          </Border>
-        </DockPanel>
-      </TabItem>
-    </TabControl>
-  </DockPanel>
+    <!-- Barra de abajo: inicio, paso actual, estado y flechas -->
+    <Grid Grid.Row="1" Margin="12,8,12,12">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+        <Button x:Name="BtnHome" Style="{StaticResource Nav}" Content="&#xE80F;" ToolTip="Inicio"/>
+        <TextBlock x:Name="TxtPaso" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="#5F5F5F"/>
+      </StackPanel>
+      <TextBlock x:Name="TxtEstado" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#8A8A8A"
+                 FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="640"/>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button x:Name="BtnAtras" Style="{StaticResource Nav}" Content="&#xE76B;" ToolTip="Atras" Margin="0,0,8,0"/>
+        <Button x:Name="BtnSiguiente" Style="{StaticResource Nav}" Content="&#xE76C;" ToolTip="Siguiente"/>
+      </StackPanel>
+    </Grid>
+  </Grid>
 </Window>
 '@
+
+# Paginas en orden. Del 1 al 8 son los pasos que se recorren con las flechas.
+$script:paginas = @("PagInicio", "PagMiPC", "PagDriver", "PagLaunchers", "PagUtilidades", "PagExtras",
+                    "PagPerifericos", "PagOptimizar", "PagResumen", "PagProgreso", "PagFinal")
+$script:pag = 0
+$script:ocupado = $false
+$script:escaneado = $false
+$script:pc = @{}
 
 function Pump {
     $script:window.Dispatcher.Invoke([Action]{}, [Windows.Threading.DispatcherPriority]::Background)
@@ -479,20 +645,37 @@ function Pump {
 function Log($texto) {
     $script:ui.Log.AppendText("$texto`r`n")
     $script:ui.Log.ScrollToEnd()
+    $script:ui.TxtEstado.Text = "$texto".Trim()
     Pump
+}
+
+function Ir($i) {
+    for ($k = 0; $k -lt $script:paginas.Count; $k++) {
+        $script:ui[$script:paginas[$k]].Visibility = if ($k -eq $i) { "Visible" } else { "Collapsed" }
+    }
+    $script:pag = $i
+    if ($script:paginas[$i] -eq "PagResumen") { Llenar-Resumen }
+    Actualizar-Nav
+}
+
+function Actualizar-Nav {
+    $ui = $script:ui; $i = $script:pag; $libre = -not $script:ocupado
+    $ui.BtnAtras.IsEnabled     = $libre -and $i -ge 1 -and $i -le 8
+    $ui.BtnSiguiente.IsEnabled = $libre -and $i -ge 1 -and $i -le 7
+    $ui.BtnHome.IsEnabled      = $libre -and $i -ne 0 -and $i -ne 9
+    $ui.TxtPaso.Text = if ($i -ge 1 -and $i -le 8) { "Paso $i de 8" } else { "" }
 }
 
 function Bloquear($si) {
-    foreach ($b in "BtnComenzar", "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada",
-                   "BtnInstalar", "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
+    $script:ocupado = $si
+    foreach ($b in "BtnComenzar", "BtnEscanear", "BtnDriverPagina", "BtnInstalar", "BtnRevertir", "BtnWinUtil", "BtnAjRec", "BtnAjNada") {
         $script:ui[$b].IsEnabled = -not $si
     }
-    if (-not $si -and -not $script:pc.Winget) { $script:ui.BtnInstalar.IsEnabled = $false; $script:ui.BtnTodo.IsEnabled = $false }
-    if (-not $si -and -not $script:pc.Driver) { $script:ui.BtnDriverPagina.IsEnabled = $false; $script:ui.BtnDriverInstalar.IsEnabled = $false }
+    if (-not $si -and -not $script:pc.Driver) { $script:ui.BtnDriverPagina.IsEnabled = $false }
+    Actualizar-Nav
     Pump
 }
 
-# Contenido de una casilla: nombre + check verde si ya esta instalado, o una nota gris
 function Pincel($hex) { (New-Object System.Windows.Media.BrushConverter).ConvertFromString($hex) }
 
 # Icono oficial de la app (favicon de su sitio, se descarga en segundo plano). Sin internet queda vacio.
@@ -518,76 +701,136 @@ function Nuevo-Icono($web, $tam) {
     return $img
 }
 
-function Nuevo-Contenido($nombre, $instalado, $nota, $web) {
-    $sp = New-Object System.Windows.Controls.StackPanel
-    $sp.Orientation = "Horizontal"
-    if ($web) {
-        $ico = Nuevo-Icono $web 18
-        $ico.Margin = New-Object System.Windows.Thickness 0, 0, 6, 0
-        [void]$sp.Children.Add($ico)
-    }
+# Icono de Windows (fuente de simbolos), para lo que no tiene sitio web
+function Nuevo-Glifo($codigo, $tam, $color) {
     $t = New-Object System.Windows.Controls.TextBlock
+    $t.Text = [string][char]$codigo
+    $t.FontFamily = New-Object System.Windows.Media.FontFamily "Segoe Fluent Icons, Segoe MDL2 Assets"
+    $t.FontSize = $tam
+    $t.Foreground = Pincel $color
     $t.VerticalAlignment = "Center"
-    $t.Text = $nombre
-    [void]$sp.Children.Add($t)
-    if ($instalado) {
-        $ok = New-Object System.Windows.Controls.TextBlock
-        $ok.Text = [string][char]0x2714
-        $ok.Foreground = Pincel "#16A34A"
-        $ok.FontWeight = [System.Windows.FontWeights]::Bold
-        $ok.Margin = New-Object System.Windows.Thickness 8, 0, 0, 0
-        $ok.ToolTip = "Ya instalado"
-        [void]$sp.Children.Add($ok)
-    } elseif ($nota) {
-        $n = New-Object System.Windows.Controls.TextBlock
-        $n.Text = $nota
-        $n.Foreground = [Windows.Media.Brushes]::Gray
-        $n.Margin = New-Object System.Windows.Thickness 8, 0, 0, 0
-        [void]$sp.Children.Add($n)
+    $t.HorizontalAlignment = "Center"
+    return $t
+}
+
+function Agregar-Run($tb, $texto, $color) {
+    $sep = if ($tb.Inlines.Count) { "    " } else { "" }
+    $r = New-Object System.Windows.Documents.Run "$sep$texto"
+    $r.Foreground = Pincel $color
+    $r.FontWeight = [System.Windows.FontWeights]::SemiBold
+    [void]$tb.Inlines.Add($r)
+}
+
+# Tarjeta como las de la bienvenida de Windows: icono, titulo, descripcion y casilla a la derecha.
+# Devuelve @{ Borde; Check; Estado } (Estado = la linea de descripcion, se usa para el progreso).
+function Nueva-Tarjeta($titulo, $desc, $web, $glifo, $conCasilla, $instalado, $nota) {
+    $borde = New-Object System.Windows.Controls.Border
+    $borde.Background = [Windows.Media.Brushes]::White
+    $borde.BorderBrush = Pincel "#E5E5E5"
+    $borde.BorderThickness = New-Object System.Windows.Thickness 1
+    $borde.CornerRadius = New-Object System.Windows.CornerRadius 6
+    $borde.Padding = New-Object System.Windows.Thickness 18, 14, 18, 14
+    $borde.Margin = New-Object System.Windows.Thickness 0, 0, 0, 10
+    $dock = New-Object System.Windows.Controls.DockPanel
+
+    $caja = New-Object System.Windows.Controls.Border
+    $caja.Width = 40; $caja.Height = 40
+    $caja.Margin = New-Object System.Windows.Thickness 0, 0, 16, 0
+    if ($web) { $caja.Child = Nuevo-Icono $web 34 }
+    elseif ($glifo) { $caja.Child = Nuevo-Glifo $glifo 24 "#0067C0" }
+    [System.Windows.Controls.DockPanel]::SetDock($caja, "Left")
+    [void]$dock.Children.Add($caja)
+
+    $cb = $null
+    if ($conCasilla) {
+        $cb = New-Object System.Windows.Controls.CheckBox
+        $cb.VerticalAlignment = "Center"
+        $cb.Margin = New-Object System.Windows.Thickness 16, 0, 0, 0
+        $cb.LayoutTransform = New-Object System.Windows.Media.ScaleTransform 1.4, 1.4
+        [System.Windows.Controls.DockPanel]::SetDock($cb, "Right")
+        [void]$dock.Children.Add($cb)
+        # Clic en cualquier parte de la tarjeta marca o desmarca
+        $borde.Cursor = [System.Windows.Input.Cursors]::Hand
+        $borde.Tag = $cb
+        $borde.Add_MouseLeftButtonUp({ if ($this.Tag.IsEnabled) { $this.Tag.IsChecked = -not $this.Tag.IsChecked } })
     }
-    return $sp
+
+    $textos = New-Object System.Windows.Controls.StackPanel
+    $textos.VerticalAlignment = "Center"
+    $t1 = New-Object System.Windows.Controls.TextBlock
+    $t1.Text = $titulo
+    $t1.FontSize = 15
+    $t1.FontWeight = [System.Windows.FontWeights]::SemiBold
+    $t1.TextWrapping = "Wrap"
+    $t2 = New-Object System.Windows.Controls.TextBlock
+    $t2.FontSize = 13
+    $t2.Foreground = Pincel "#5F5F5F"
+    $t2.TextWrapping = "Wrap"
+    $t2.Margin = New-Object System.Windows.Thickness 0, 3, 0, 0
+    if ($desc) { [void]$t2.Inlines.Add((New-Object System.Windows.Documents.Run "$desc")) }
+    if ($instalado) { Agregar-Run $t2 "$($script:ok) Ya instalado" "#16A34A" }
+    elseif ($nota)  { Agregar-Run $t2 $nota "#0067C0" }
+    [void]$textos.Children.Add($t1)
+    [void]$textos.Children.Add($t2)
+    [void]$dock.Children.Add($textos)
+    $borde.Child = $dock
+    return @{ Borde = $borde; Check = $cb; Estado = $t2 }
+}
+
+function Nuevo-Encabezado($panel, $texto) {
+    $t = New-Object System.Windows.Controls.TextBlock
+    $t.Text = $texto
+    $t.FontSize = 14
+    $t.FontWeight = [System.Windows.FontWeights]::SemiBold
+    $t.Foreground = Pincel "#5F5F5F"
+    $t.Margin = New-Object System.Windows.Thickness 2, 14, 0, 8
+    [void]$panel.Children.Add($t)
+}
+
+function Agregar-Tarjeta($panel, $titulo, $desc, $web, $glifo) {
+    $t = Nueva-Tarjeta $titulo $desc $web $glifo $false $false $null
+    [void]$panel.Children.Add($t.Borde)
+    return $t
 }
 
 function Llenar-Panel($panel, $items) {
     $panel.Children.Clear()
     foreach ($it in $items) {
-        $cb = New-Object System.Windows.Controls.CheckBox
         $nota = $null
-        if ($it.Conectado) { $nota = "(conectado - recomendado)" }
-        elseif ($it.Recomendado -and $it.Aplicar) { $nota = "(recomendado)" }
-        $cb.Content = Nuevo-Contenido $it.Nombre $it.Instalado $nota $it.Web
-        $cb.IsChecked = [bool]$it.Recomendado
-        if ($it.Desc) { $cb.ToolTip = $it.Desc } elseif ($it.Instalado) { $cb.ToolTip = "Ya instalado" }
-        $it.Check = $cb
-        [void]$panel.Children.Add($cb)
-        if ($it.Sub) { [void]$panel.Children.Add((Nuevo-Submenu $it $cb)) }
+        if ($it.Conectado) { $nota = "Conectado - recomendado" }
+        elseif ($it.Aplicar -and $it.Recomendado) { $nota = "Recomendado para tu PC" }
+        $desc  = if ($it.Aplicar) { $it.Desc } else { $script:info[$it.Nombre] }
+        $glifo = if ($it.Aplicar) { 0xE713 } else { 0xE74C }
+        $t = Nueva-Tarjeta $it.Nombre $desc $it.Web $glifo $true $it.Instalado $nota
+        $t.Check.IsChecked = [bool]$it.Recomendado
+        $it.Check = $t.Check
+        [void]$panel.Children.Add($t.Borde)
+        if ($it.Sub) { [void]$panel.Children.Add((Nuevo-Submenu $it $t.Check)) }
     }
 }
 
-# Juegos de Riot y region, debajo de su casilla. Solo se ve si la casilla esta marcada.
+# Juegos de Riot y region, debajo de su tarjeta. Solo se ve si la tarjeta esta marcada.
 function Nuevo-Submenu($it, $cb) {
     $caja = New-Object System.Windows.Controls.StackPanel
-    $caja.Margin = New-Object System.Windows.Thickness 26, 0, 0, 6
+    $caja.Margin = New-Object System.Windows.Thickness 56, 0, 0, 10
     foreach ($sub in $it.Sub) {
-        $scb = New-Object System.Windows.Controls.CheckBox
-        $scb.Content = Nuevo-Contenido $sub.Nombre $sub.Instalado $null $sub.Web
-        $scb.IsChecked = $false
-        if ($sub.Instalado) { $scb.ToolTip = "Ya instalado" }
-        $sub.Check = $scb
-        [void]$caja.Children.Add($scb)
+        $t = Nueva-Tarjeta $sub.Nombre $script:info[$sub.Nombre] $sub.Web $null $true $sub.Instalado $null
+        $t.Check.IsChecked = $false
+        $sub.Check = $t.Check
+        [void]$caja.Children.Add($t.Borde)
     }
-    $fila = New-Object System.Windows.Controls.StackPanel
-    $fila.Orientation = "Horizontal"
-    $fila.Margin = New-Object System.Windows.Thickness 0, 4, 0, 0
+    $fila = New-Object System.Windows.Controls.DockPanel
+    $fila.Margin = New-Object System.Windows.Thickness 4, 2, 0, 0
     $txt = New-Object System.Windows.Controls.TextBlock
-    $txt.Text = "Region:"
+    $txt.Text = "Region de tu cuenta:"
     $txt.VerticalAlignment = "Center"
-    $txt.Margin = New-Object System.Windows.Thickness 0, 0, 6, 0
+    $txt.Margin = New-Object System.Windows.Thickness 0, 0, 10, 0
     $combo = New-Object System.Windows.Controls.ComboBox
-    $combo.Width = 200
+    $combo.Width = 260
+    $combo.HorizontalAlignment = "Left"
     foreach ($r in $script:regiones) { [void]$combo.Items.Add($r.Nombre) }
     $combo.SelectedIndex = Get-RegionRiot
-    $combo.ToolTip = "La region de tu cuenta. Despues se puede cambiar desde Riot Client."
+    $combo.ToolTip = "Despues se puede cambiar desde Riot Client."
     [void]$fila.Children.Add($txt); [void]$fila.Children.Add($combo)
     [void]$caja.Children.Add($fila)
     $it.Region = $combo
@@ -606,90 +849,112 @@ function Marcar($items, $soloRecomendados) {
     }
 }
 
+# Pagina "Esta es tu PC": hardware, perifericos y recomendaciones, en tarjetas
 function Mostrar-InfoPC {
     $pc = $script:pc
+    $p = $script:ui.PnlInfo
+    $p.Children.Clear()
+
+    $tipo = if ($pc.EsLaptop) { "Laptop" } else { "PC de escritorio" }
     $ram = "$($pc.RamGB) GB"
     if ($pc.RamTipo) { $ram += " $($pc.RamTipo)" }
     if ($pc.RamMhz)  { $ram += " a $($pc.RamMhz) MHz" }
-    $tipo = if ($pc.EsLaptop) { "Laptop" } else { "PC de escritorio" }
-    $wg = if ($pc.Winget) { "instalado ($($pc.Winget))" } else { "NO ENCONTRADO" }
+    $cpuWeb = if ($pc.CPU -match "AMD|Ryzen") { "amd.com" } elseif ($pc.CPU -match "Intel") { "intel.com" } else { $null }
+    $gpuWeb = if ($pc.Driver) { $pc.Driver.Web } else { $null }
+    $wg = if ($pc.Winget) { "Instalado ($($pc.Winget))" } else { "No encontrado" }
 
-    $perif = @()
-    foreach ($p in $script:perifericos) {
-        if ($p.Conectado) {
-            if ($p.Dispositivos.Count) { $perif += "$($p.Marca) ($($p.Dispositivos -join ', '))" }
-            else { $perif += "$($p.Marca) ($($p.Cantidad) dispositivo(s) conectado(s))" }
-        }
+    Nuevo-Encabezado $p "Tu PC"
+    [void](Agregar-Tarjeta $p "$($pc.Windows) $($pc.Version)" "Sistema - build $($pc.Build) - $tipo" "microsoft.com" $null)
+    [void](Agregar-Tarjeta $p $pc.CPU "Procesador" $cpuWeb 0xE770)
+    [void](Agregar-Tarjeta $p ($pc.GPUs -join ', ') "Tarjeta de video" $gpuWeb 0xE770)
+    [void](Agregar-Tarjeta $p $ram "Memoria RAM" $null 0xE770)
+    [void](Agregar-Tarjeta $p $pc.Disco "Disco de Windows (C:)" $null 0xE770)
+    [void](Agregar-Tarjeta $p $wg "winget, el instalador de programas de Windows" $null 0xE896)
+
+    Nuevo-Encabezado $p "Perifericos conectados"
+    $conectados = @($script:perifericos | Where-Object { $_.Conectado })
+    foreach ($per in $conectados) {
+        $det = if ($per.Dispositivos.Count) { $per.Dispositivos -join ', ' } else { "$($per.Cantidad) dispositivo(s)" }
+        [void](Agregar-Tarjeta $p $per.Marca $det $per.Web $null)
     }
-    if (-not $perif.Count) { $perif = @("ninguno de las marcas con programa propio") }
+    if (-not $conectados.Count) {
+        [void](Agregar-Tarjeta $p "Ninguno con programa propio" "Si tienes uno, conectalo y presiona 'Volver a analizar'." $null 0xE946)
+    }
 
-    $lineas = @(
-        ("Windows:      {0} {1} (build {2})" -f $pc.Windows, $pc.Version, $pc.Build),
-        "Tipo:         $tipo",
-        "Procesador:   $($pc.CPU)",
-        "Grafica:      $($pc.GPUs -join ', ')",
-        "RAM:          $ram",
-        "Disco de C:   $($pc.Disco)",
-        "winget:       $wg",
-        "Perifericos:  $($perif -join "`n              ")"
-    )
-    $script:ui.TxtInfo.Text = $lineas -join "`n"
-
-    # Recomendaciones
+    # Recomendaciones: titulo y explicacion
     $r = @()
     if (-not $pc.Winget) {
-        if ($script:sinInternet) {
-            $r += "- No hay internet y falta winget: conectate a internet y presiona 'Volver a escanear' (winget se instala solo)."
-        } else {
-            $r += "- No se pudo instalar winget automaticamente. Abre la Microsoft Store, busca 'Instalador de aplicacion' (App Installer), actualizalo y presiona 'Volver a escanear'."
-        }
+        if ($script:sinInternet) { $r += ,@("Sin internet y falta winget", "Conectate a internet y vuelve a analizar: winget se instala solo.") }
+        else { $r += ,@("No se pudo instalar winget", "Abre la Microsoft Store, actualiza 'Instalador de aplicacion' (App Installer) y vuelve a analizar.") }
     } elseif ($script:sinInternet) {
-        $r += "- No hay conexion a internet: conectate y presiona 'Volver a escanear' antes de instalar."
+        $r += ,@("Sin conexion a internet", "Conectate y vuelve a analizar antes de instalar.")
     }
     if ($pc.Build -lt 19041) {
-        $r += "- Tu Windows es anterior a Windows 10 2004: conviene actualizarlo. HAGS no esta disponible."
+        $r += ,@("Actualiza Windows", "Tu Windows es anterior a Windows 10 2004. HAGS no esta disponible.")
     } elseif ($pc.Build -lt 22000) {
-        $r += "- Tienes Windows 10: todo funciona, pero Windows 11 tiene mejor soporte para juegos (DirectStorage, Auto HDR)."
+        $r += ,@("Tienes Windows 10", "Todo funciona, pero Windows 11 tiene mejor soporte para juegos (DirectStorage, Auto HDR).")
     }
     if ($pc.Driver) {
-        if ($pc.DriverInstalado) { $r += "- Driver de la grafica: $($pc.Driver.Nombre) ya esta instalado. Actualizalo desde su propia app." }
-        else { $r += "- Driver de la grafica: falta $($pc.Driver.Nombre). Esta marcado en la pestana 1. Driver." }
+        if ($pc.DriverInstalado) { $r += ,@("Driver de video instalado", "$($pc.Driver.Nombre) ya esta instalado. Actualizalo desde su propia app.") }
+        else { $r += ,@("Falta el driver de video", "$($pc.Driver.Nombre) viene marcado en el paso Driver.") }
     } else {
-        $r += "- No se reconocio la marca de la grafica: instala su driver a mano."
+        $r += ,@("Grafica no reconocida", "Instala su driver a mano desde la pagina del fabricante.")
     }
-    $conectados = @($script:perifericos | Where-Object { $_.Conectado })
-    if ($conectados.Count) {
-        foreach ($p in $conectados) {
-            if ($p.Instalado) { $r += "- $($p.Marca) conectado: $($p.Nombre) ya esta instalado." }
-            else { $r += "- $($p.Marca) conectado: se recomienda $($p.Nombre) (ya viene marcado en Instalar)." }
-        }
-    } else {
-        $r += "- No se detectaron perifericos con programa propio. Si tienes, conectalos y presiona 'Volver a escanear'."
+    foreach ($per in $conectados) {
+        if (-not $per.Instalado) { $r += ,@("Instala $($per.Nombre)", "Tienes $($per.Marca) conectado: viene marcado en el paso Perifericos.") }
     }
     if ($pc.EsLaptop) {
-        $r += "- Laptop: juega con el cargador conectado. El plan Alto rendimiento y desactivar la hibernacion no se recomiendan por la bateria."
+        $r += ,@("Laptop: juega con el cargador", "El plan Alto rendimiento y desactivar la hibernacion no se recomiendan por la bateria.")
     }
     if (($pc.RamTipo -eq "DDR5" -and $pc.RamMhz -gt 0 -and $pc.RamMhz -le 4800) -or
         ($pc.RamTipo -eq "DDR4" -and $pc.RamMhz -gt 0 -and $pc.RamMhz -le 2667)) {
         $perfil = if ($pc.RamTipo -eq "DDR5") { "EXPO/XMP" } else { "XMP (DOCP en placas ASUS)" }
-        $r += "- BIOS: tu RAM corre a $($pc.RamMhz) MHz, la velocidad basica de $($pc.RamTipo). Si tu memoria es mas rapida (mira la etiqueta, ej. 3200 o 3600), activa $perfil en la BIOS para que corra a su velocidad real. Algunas placas madre economicas no lo permiten."
+        $r += ,@("Activa $perfil en la BIOS", "Tu RAM corre a $($pc.RamMhz) MHz, la velocidad basica de $($pc.RamTipo). Si tu memoria es mas rapida (mira la etiqueta, ej. 3200 o 3600), activalo para que corra a su velocidad real. Algunas placas economicas no lo permiten.")
     }
     if ($pc.GPUs -match "AMD|Radeon") {
-        $r += "- BIOS: activa Smart Access Memory / Resizable BAR (Above 4G Decoding + Re-Size BAR). Puedes verificarlo en AMD Software > Rendimiento."
+        $r += ,@("Activa Smart Access Memory en la BIOS", "Above 4G Decoding + Re-Size BAR. Puedes verificarlo en AMD Software > Rendimiento.")
     } elseif ($pc.GPUs -match "NVIDIA|GeForce|RTX|GTX") {
-        $r += "- BIOS: activa Resizable BAR (Above 4G Decoding + Re-Size BAR)."
+        $r += ,@("Activa Resizable BAR en la BIOS", "Above 4G Decoding + Re-Size BAR.")
     }
     if ($pc.Disco -eq "HDD") {
-        $r += "- Windows esta en un disco HDD: si tienes un SSD, instala ahi Windows y tus juegos, carga mucho mas rapido."
+        $r += ,@("Windows esta en un disco HDD", "Si tienes un SSD, instala ahi Windows y tus juegos: cargan mucho mas rapido.")
     }
     if ($pc.RamGB -gt 0 -and $pc.RamGB -lt 16) {
-        $r += "- Tienes $($pc.RamGB) GB de RAM: para juegos actuales se recomiendan 16 GB o mas. En Optimizar se marca 'Efectos visuales - Mejor rendimiento'."
+        $r += ,@("Poca RAM para juegos actuales", "Tienes $($pc.RamGB) GB; se recomiendan 16 GB o mas. En Optimizar viene marcado 'Efectos visuales - Mejor rendimiento'.")
     }
-    $script:ui.TxtRecom.Text = $r -join "`n"
+    Nuevo-Encabezado $p "Recomendaciones"
+    foreach ($rec in $r) { [void](Agregar-Tarjeta $p $rec[0] $rec[1] $null 0xE946) }
+
+    # Texto de la pagina de perifericos
+    $script:ui.TxtPerif.Text = if ($conectados.Count) {
+        "Detectamos conectado: $(($conectados | ForEach-Object { $_.Marca }) -join ', '). Su programa viene marcado. Si tienes otra marca de la lista, marcala tu."
+    } else {
+        "No detectamos perifericos con programa propio. Si tienes alguno de estas marcas, marcalo tu, o conectalo y vuelve a analizar desde 'Esta es tu PC'."
+    }
+}
+
+function Llenar-Driver {
+    $pc = $script:pc; $ui = $script:ui
+    $p = $ui.PnlDriver
+    $p.Children.Clear()
+    $ui.ChkDriver = $null
+    $gpus = $pc.GPUs -join ', '
+    if (-not $pc.Driver) {
+        $ui.TxtDriver.Text = "No reconocimos la marca de tu tarjeta de video. Instala su driver a mano desde la pagina del fabricante."
+        [void](Agregar-Tarjeta $p $gpus "Marca no reconocida" $null 0xE770)
+        return
+    }
+    $como = if ($pc.Driver.Id) { "Se instala automaticamente." }
+            else { "Como AMD y NVIDIA no estan en winget, se abre su pagina oficial para que lo descargues e instales; el instalador te guia." }
+    $ui.TxtDriver.Text = "Va primero: los juegos y algunos ajustes de Windows dependen de el. Tu tarjeta es $gpus. $como"
+    $nota = if ($pc.DriverInstalado) { $null } else { "Recomendado" }
+    $t = Nueva-Tarjeta $pc.Driver.Nombre "Driver de $gpus" $pc.Driver.Web $null $true $pc.DriverInstalado $nota
+    $t.Check.IsChecked = -not $pc.DriverInstalado
+    $ui.ChkDriver = $t.Check
+    [void]$p.Children.Add($t.Borde)
 }
 
 function Test-Winget { [bool](Get-Command winget -ErrorAction SilentlyContinue) }
-
 function Test-Internet {
     try {
         Invoke-WebRequest "https://github.com" -Method Head -UseBasicParsing -TimeoutSec 10 | Out-Null
@@ -698,7 +963,6 @@ function Test-Internet {
         return [bool]$_.Exception.Response   # respondio con error HTTP: igual hay internet
     }
 }
-
 # Descarga un archivo sin congelar la ventana
 function Descargar($url, $destino) {
     $wc = New-Object System.Net.WebClient
@@ -706,7 +970,6 @@ function Descargar($url, $destino) {
     while (-not $tarea.IsCompleted) { Pump; Start-Sleep -Milliseconds 200 }
     if ($tarea.IsFaulted) { throw $tarea.Exception.InnerException }
 }
-
 # Instala winget (App Installer) si falta. Devuelve $true si quedo listo.
 function Instalar-Winget {
     # 1. En una PC recien formateada suele venir pero sin activar: registrarlo es instantaneo
@@ -744,16 +1007,17 @@ function Instalar-Winget {
     return $false
 }
 
-function Escanear {
+# Analiza la PC y llena todas las paginas. $irA = pagina a mostrar al terminar (-1 = quedarse).
+function Escanear($irA = 1) {
     Bloquear $true
-    $script:ui.TxtInfo.Text = "Escaneando..."
+    $script:ui.BtnComenzar.Content = "Analizando..."
     $script:sinInternet = -not (Test-Internet)
     if ($script:sinInternet) { Log "AVISO: no hay conexion a internet. Se puede ver el analisis, pero no instalar." }
     if (-not (Test-Winget)) {
         if ($script:sinInternet) { Log "Falta winget y sin internet no se puede instalar." }
-        elseif (-not (Instalar-Winget)) { Log "No se pudo instalar winget: mira las recomendaciones en Mi PC." }
+        elseif (-not (Instalar-Winget)) { Log "No se pudo instalar winget: mira las recomendaciones." }
     }
-    Log "Escaneando la PC (Windows, hardware, perifericos y apps instaladas). Puede tardar unos segundos..."
+    Log "Analizando tu PC (Windows, hardware, perifericos y apps instaladas)..."
     $script:pc = Get-InfoPC
     Mostrar-InfoPC
     Llenar-Driver
@@ -762,19 +1026,16 @@ function Escanear {
     Llenar-Panel $script:ui.PnlExtras      $script:extras
     Llenar-Panel $script:ui.PnlPerifericos $script:perifericos
     Llenar-Panel $script:ui.PnlAjustes     $script:ajustes
-    # Despues del primer analisis se muestra todo
-    $ui = $script:ui
-    $ui.BtnComenzar.Visibility = "Collapsed"
-    foreach ($c in "BtnTodo", "BtnEscanear", "GrpInfo", "GrpRecom") { $ui[$c].Visibility = "Visible" }
-    foreach ($t in "TabDriver", "TabProgramas", "TabOptimizar", "TabProgreso") { $ui[$t].IsEnabled = $true }
-    Log "Listo. Revisa las pestanas 1. Driver, 2. Programas y 3. Optimizar, o usa 'Hacer todo lo recomendado'."
+    $script:escaneado = $true
+    $script:ui.BtnComenzar.Content = "Continuar"
+    Log "Analisis listo."
     Bloquear $false
+    if ($irA -ge 0) { Ir $irA }
 }
 
 $script:limiteMinutos = 20   # si un programa tarda mas, se cancela y se sigue con el siguiente
 
 function Formato-Tiempo($ts) { "{0}:{1:00}" -f [int][Math]::Floor($ts.TotalMinutes), $ts.Seconds }
-
 # Explicacion corta de los codigos de error de winget mas comunes
 function Texto-Error($codigo) {
     switch ($codigo) {
@@ -789,7 +1050,6 @@ function Texto-Error($codigo) {
         default     { "codigo $codigo" }
     }
 }
-
 # Corre un winget install sin congelar la ventana, mostrando el tiempo.
 # Devuelve el codigo de salida, o "saltado" / "tiempo".
 function Ejecutar-Winget($app, $id, $fuente) {
@@ -825,7 +1085,6 @@ function Ejecutar-Winget($app, $id, $fuente) {
     $p.WaitForExit()
     return $p.ExitCode
 }
-
 # Instala una app. Devuelve ok, yaEstaba, fallo, saltado o tiempo.
 # Si falla: reintenta una vez si habia otra instalacion en curso, y prueba la version de la Store si la tiene.
 function Instalar-App($app) {
@@ -858,32 +1117,10 @@ function Instalar-App($app) {
     }
     return "fallo"
 }
-
 function Confirmar($texto) {
     $r = [System.Windows.MessageBox]::Show($texto, "PC Gamer", "YesNo", "Question")
     return $r -eq "Yes"
 }
-
-function Llenar-Driver {
-    $pc = $script:pc; $ui = $script:ui
-    $gpus = $pc.GPUs -join ', '
-    if (-not $pc.Driver) {
-        $ui.TxtDriver.Text = "Tarjeta de video: $gpus`nNo se reconocio la marca (AMD, NVIDIA o Intel). Instala su driver a mano desde la pagina del fabricante."
-        $ui.ChkDriver.Content = "Sin driver para instalar"
-        $ui.ChkDriver.IsChecked = $false
-        $ui.ChkDriver.IsEnabled = $false
-        return
-    }
-    $estado = if ($pc.DriverInstalado) { "ya instalado. Para actualizarlo usa su propia app." } else { "NO instalado." }
-    $como = if ($pc.Driver.Id) { "Se instala automaticamente con winget; si falla, se abre su pagina oficial." }
-            else { "Se abre su pagina oficial para descargarlo e instalarlo (el instalador te guia)." }
-    $ui.TxtDriver.Text = "Tarjeta de video: $gpus`nDriver recomendado: $($pc.Driver.Nombre)`nEstado: $estado`n$como"
-    $nota = if ($pc.DriverInstalado) { $null } else { "(recomendado)" }
-    $ui.ChkDriver.Content = Nuevo-Contenido "Instalar $($pc.Driver.Nombre)" $pc.DriverInstalado $nota $pc.Driver.Web
-    $ui.ChkDriver.IsChecked = -not $pc.DriverInstalado
-    $ui.ChkDriver.IsEnabled = $true
-}
-
 function Abrir-PaginaDriver {
     $d = $script:pc.Driver
     Log "Abriendo la pagina oficial de $($d.Nombre)..."
@@ -895,40 +1132,61 @@ function Abrir-PaginaDriver {
 $script:ok   = [string][char]0x2714
 $script:mal  = [string][char]0x2716
 
-# Prepara la pestana Progreso con una fila por tarea y la muestra
+# Lo marcado en todos los pasos
+function Seleccion {
+    @{
+        Driver = [bool]($script:pc.Driver -and $script:ui.ChkDriver -and $script:ui.ChkDriver.IsChecked)
+        Apps   = @(Apps-Marcadas)
+        Ajs    = @(Ajustes-Marcados)
+    }
+}
+
+# Pagina de resumen antes de instalar
+function Llenar-Resumen {
+    $p = $script:ui.PnlResumen
+    $p.Children.Clear()
+    $s = Seleccion
+    Nuevo-Encabezado $p "1. Driver de video"
+    if ($s.Driver) { [void](Agregar-Tarjeta $p $script:pc.Driver.Nombre "Se instala, o se abre su pagina oficial" $script:pc.Driver.Web $null) }
+    else { [void](Agregar-Tarjeta $p "Nada" "No se instala ningun driver" $null 0xE73E) }
+    Nuevo-Encabezado $p "2. Programas ($($s.Apps.Count))"
+    foreach ($a in $s.Apps) { [void](Agregar-Tarjeta $p $a.Nombre $script:info[$a.Nombre] $a.Web 0xE74C) }
+    if (-not $s.Apps.Count) { [void](Agregar-Tarjeta $p "Nada" "No marcaste programas" $null 0xE73E) }
+    Nuevo-Encabezado $p "3. Optimizar ($($s.Ajs.Count))"
+    foreach ($a in $s.Ajs) { [void](Agregar-Tarjeta $p $a.Nombre $a.Desc $null 0xE713) }
+    if (-not $s.Ajs.Count) { [void](Agregar-Tarjeta $p "Nada" "No marcaste ajustes" $null 0xE73E) }
+
+    $hayAlgo = $s.Driver -or $s.Apps.Count -or $s.Ajs.Count
+    $faltaWinget = $s.Apps.Count -and -not $script:pc.Winget
+    $script:ui.BtnInstalar.IsEnabled = $hayAlgo -and -not $faltaWinget -and -not $script:ocupado
+    $script:ui.TxtResumenDesc.Text = if (-not $hayAlgo) {
+        "No marcaste nada. Vuelve con la flecha y elige que instalar u optimizar."
+    } elseif ($faltaWinget) {
+        "Falta winget, asi que no se pueden instalar programas. Mira las recomendaciones en 'Esta es tu PC'."
+    } else {
+        "Esto es lo que se va a hacer, en este orden. Puedes dejar la PC sola mientras se instala. Si quieres cambiar algo, vuelve con la flecha."
+    }
+}
+
+# Prepara la pagina de progreso con una tarjeta por tarea y la muestra
 function Iniciar-Progreso($items, $titulo) {
     $ui = $script:ui
     $ui.PnlProgreso.Children.Clear()
     foreach ($it in $items) {
-        $fila = New-Object System.Windows.Controls.DockPanel
-        $fila.Margin = New-Object System.Windows.Thickness 4, 4, 4, 4
-        $ico = Nuevo-Icono $it.Web 24
-        $ico.Margin = New-Object System.Windows.Thickness 0, 0, 10, 0
-        [System.Windows.Controls.DockPanel]::SetDock($ico, "Left")
-        $est = New-Object System.Windows.Controls.TextBlock
-        $est.Text = "En espera"
-        $est.Foreground = [Windows.Media.Brushes]::Gray
-        $est.Width = 260
-        $est.FontSize = 14
-        $est.VerticalAlignment = "Center"
-        [System.Windows.Controls.DockPanel]::SetDock($est, "Right")
-        $nom = New-Object System.Windows.Controls.TextBlock
-        $nom.Text = $it.Nombre
-        $nom.FontSize = 14
-        $nom.VerticalAlignment = "Center"
-        [void]$fila.Children.Add($ico); [void]$fila.Children.Add($est); [void]$fila.Children.Add($nom)
-        $it.Fila = $est
-        [void]$ui.PnlProgreso.Children.Add($fila)
+        $glifo = if ($it.Aplicar) { 0xE713 } else { 0xE74C }
+        $t = Agregar-Tarjeta $ui.PnlProgreso $it.Nombre "En espera" $it.Web $glifo
+        $t.Estado.Foreground = [Windows.Media.Brushes]::Gray
+        $it.Fila = $t.Estado
+        $it.Duracion = $null; $it.Error = $null
     }
     $ui.BarProgreso.Maximum = [Math]::Max(1, $items.Count)
     $ui.BarProgreso.Value = 0
     $ui.TxtProgreso.Text = $titulo
     $ui.TxtResumen.Text = ""
-    $ui.Tabs.SelectedItem = $ui.TabProgreso
-    foreach ($it in $items) { $it.Duracion = $null; $it.Error = $null }
-    $script:progreso = @{ Total = $items.Count; Hechos = 0; ok = @(); yaEstaba = @(); aplicado = @(); fallo = @(); manual = @(); saltado = @(); Inicio = Get-Date }
     $ui.BtnSaltar.Visibility = "Visible"
     $ui.BtnSaltar.IsEnabled = $true
+    $script:progreso = @{ Total = $items.Count; Hechos = 0; ok = @(); yaEstaba = @(); aplicado = @(); fallo = @(); manual = @(); saltado = @(); Inicio = Get-Date }
+    Ir 9
     Pump
 }
 
@@ -936,14 +1194,12 @@ function Set-Estado($it, $texto, $color) {
     if ($it.Fila) { $it.Fila.Text = $texto; $it.Fila.Foreground = Pincel $color }
     Pump
 }
-
 function Empezar-Item($it, $verbo) {
     $p = $script:progreso
     $script:ui.TxtProgreso.Text = "$verbo $($p.Hechos + 1) de $($p.Total): $($it.Nombre)"
     Set-Estado $it "$verbo..." "#2563EB"
 }
-
-# resultado: ok, yaEstaba, aplicado, revertido, manual o fallo
+# resultado: ok, yaEstaba, aplicado, revertido, manual, saltado, tiempo o fallo
 function Terminar-Item($it, $resultado) {
     $p = $script:progreso
     switch ($resultado) {
@@ -970,14 +1226,16 @@ function Terminar-Progreso {
     $ui.BarProgreso.Value = $ui.BarProgreso.Maximum
     $ui.BtnSaltar.Visibility = "Collapsed"
     $total = Formato-Tiempo ((Get-Date) - $p.Inicio)
-    $ui.TxtProgreso.Text = if ($p.fallo.Count) { "Terminado en $total, con $($p.fallo.Count) error(es)" } else { "$($script:ok) Terminado en $total" }
-    $r = @()
-    if ($p.ok.Count)       { $r += "Instalados ($($p.ok.Count)): $($p.ok -join ', ')" }
-    if ($p.yaEstaba.Count) { $r += "Ya estaban ($($p.yaEstaba.Count)): $($p.yaEstaba -join ', ')" }
-    if ($p.aplicado.Count) { $r += "Ajustes ($($p.aplicado.Count)): $($p.aplicado -join ', ')" }
-    if ($p.manual.Count)   { $r += "A mano ($($p.manual.Count)): $($p.manual -join ', ')" }
-    if ($p.saltado.Count)  { $r += "Saltados ($($p.saltado.Count)): $($p.saltado -join ', ')" }
-    if ($p.fallo.Count)    { $r += "Fallaron ($($p.fallo.Count)): $($p.fallo -join ', ') -> vuelve a intentar o instalalos a mano." }
+    $ui.TxtProgreso.Text = "Terminado en $total."
+    $ui.TxtFinalTitulo.Text = if ($p.fallo.Count) { "Casi listo" } else { "Todo listo" }
+    $r = @("Terminado en $total.")
+    if ($p.ok.Count)       { $r += "Instalados ($($p.ok.Count)): $($p.ok -join ', ')." }
+    if ($p.yaEstaba.Count) { $r += "Ya estaban ($($p.yaEstaba.Count)): $($p.yaEstaba -join ', ')." }
+    if ($p.aplicado.Count) { $r += "Ajustes aplicados ($($p.aplicado.Count))." }
+    if ($p.manual.Count)   { $r += "Instalar a mano: $($p.manual -join ', ') (se abrio su pagina)." }
+    if ($p.saltado.Count)  { $r += "Saltados: $($p.saltado -join ', ')." }
+    if ($p.fallo.Count)    { $r += "Fallaron: $($p.fallo -join ', '). Vuelve a intentarlo desde el inicio o instalalos a mano." }
+    $r += "Pendiente: inicia sesion en cada launcher y descarga tus juegos."
     $ui.TxtResumen.Text = $r -join "`n"
     foreach ($linea in $r) { Log $linea }
 }
@@ -996,7 +1254,6 @@ function Fase-Driver {
     Terminar-Item $d "manual"
     return $true
 }
-
 function Fase-Programas($sel) {
     Log "===== FASE 2: PROGRAMAS ====="
     foreach ($app in $sel) {
@@ -1004,7 +1261,6 @@ function Fase-Programas($sel) {
         Terminar-Item $app (Instalar-App $app)
     }
 }
-
 function Fase-Optimizar($sel) {
     Log "===== FASE 3: OPTIMIZAR ====="
     foreach ($aj in $sel) {
@@ -1014,7 +1270,6 @@ function Fase-Optimizar($sel) {
         catch { Log "  ERROR: $($_.Exception.Message)"; Terminar-Item $aj "fallo" }
     }
 }
-
 # Apps marcadas para instalar. Riot se reemplaza por sus juegos marcados, con el ID de la region elegida.
 function Apps-Marcadas {
     $sel = @()
@@ -1035,90 +1290,58 @@ function Ajustes-Marcados { @($script:ajustes | Where-Object { $_.Check.IsChecke
 function Lista($items) { ($items | ForEach-Object { "  - $($_.Nombre)" }) -join "`n" }
 function Aviso($texto) { [System.Windows.MessageBox]::Show($texto, "PC Gamer") | Out-Null }
 
-function Ofrecer-Reinicio {
-    if (Confirmar "Para terminar hay que REINICIAR la PC.`n`nGuarda lo que tengas abierto. Reiniciar ahora?") {
-        Log "Reiniciando..."
-        Restart-Computer -Force
-    } else {
-        Log "Recuerda reiniciar la PC para que todo tenga efecto."
-    }
-}
-
 function Conectar-Eventos {
     $ui = $script:ui
 
-    $ui.BtnEscanear.Add_Click({ Escanear })
+    $ui.BtnComenzar.Add_Click({ if ($script:escaneado) { Ir 1 } else { Escanear 1 } })
+    $ui.BtnEscanear.Add_Click({ Escanear 1 })
+    $ui.BtnHome.Add_Click({ Ir 0 })
+    $ui.BtnAtras.Add_Click({ Ir ($script:pag - 1) })
+    $ui.BtnSiguiente.Add_Click({ Ir ($script:pag + 1) })
+    $ui.BtnVolver.Add_Click({ Ir 0 })
     $ui.BtnDriverPagina.Add_Click({ if ($script:pc.Driver) { Abrir-PaginaDriver } })
-
-    $ui.BtnAppsRec.Add_Click({ Marcar (Todas-Apps) $true })
-    $ui.BtnAppsNada.Add_Click({ Marcar (Todas-Apps) $false })
     $ui.BtnAjRec.Add_Click({ Marcar $script:ajustes $true })
     $ui.BtnAjNada.Add_Click({ Marcar $script:ajustes $false })
 
-    $ui.BtnTodo.Add_Click({
-        $driver = $script:pc.Driver -and $script:ui.ChkDriver.IsChecked
-        $apps = @(Apps-Marcadas)
-        $ajs = @(Ajustes-Marcados)
-        if (-not $driver -and -not $apps.Count -and -not $ajs.Count) { Aviso "No hay nada marcado en las pestanas 1, 2 y 3."; return }
-        $t = "Se va a hacer, en este orden:`n`n"
-        $t += "1. DRIVER: " + $(if ($driver) { $script:pc.Driver.Nombre } else { "nada" }) + "`n`n"
-        $t += "2. PROGRAMAS ($($apps.Count)):" + $(if ($apps.Count) { "`n" + (Lista $apps) } else { " nada" }) + "`n`n"
-        $t += "3. OPTIMIZAR ($($ajs.Count)):" + $(if ($ajs.Count) { "`n" + (Lista $ajs) } else { " nada" }) + "`n`n"
-        $t += "Puedes dejar la PC sola mientras instala. Continuar?"
-        if (-not (Confirmar $t)) { return }
+    $ui.BtnSaltar.Add_Click({
+        $script:saltar = $true
+        $script:ui.BtnSaltar.IsEnabled = $false
+        Log "  Saltando..."
+    })
+    $ui.BtnDetalles.Add_Click({
+        $log = $script:ui.Log
+        if ($log.Visibility -eq "Visible") { $log.Visibility = "Collapsed"; $script:ui.BtnDetalles.Content = "Ver detalles" }
+        else { $log.Visibility = "Visible"; $script:ui.BtnDetalles.Content = "Ocultar detalles" }
+    })
 
+    $ui.BtnInstalar.Add_Click({
+        $s = Seleccion
+        if (-not $s.Driver -and -not $s.Apps.Count -and -not $s.Ajs.Count) { Aviso "No marcaste nada para instalar u optimizar."; return }
         Bloquear $true
         $tareas = @()
-        if ($driver) { $tareas += $script:pc.Driver }
-        Iniciar-Progreso ($tareas + $apps + $ajs) "Empezando..."
-        if ($driver) {
+        if ($s.Driver) { $tareas += $script:pc.Driver }
+        Iniciar-Progreso ($tareas + $s.Apps + $s.Ajs) "Empezando..."
+        if ($s.Driver) {
             if (Fase-Driver) {
                 Aviso "Se abrio la pagina oficial de $($script:pc.Driver.Nombre).`n`nDescarga e instala el driver (si pide reiniciar, elige 'mas tarde').`nCuando termine, presiona Aceptar para seguir con los programas."
             }
         }
-        if ($apps.Count) { Fase-Programas $apps }
-        if ($ajs.Count)  { Fase-Optimizar $ajs }
+        if ($s.Apps.Count) { Fase-Programas $s.Apps }
+        if ($s.Ajs.Count)  { Fase-Optimizar $s.Ajs }
         Terminar-Progreso
-        Log "Pendiente a mano: juegos desde cada launcher, Black Myth Wukong, perfiles de iCUE y FanControl."
+        $reiniciar = $s.Driver -or $s.Ajs.Count -gt 0
+        $script:ui.BtnReiniciar.Visibility = if ($reiniciar) { "Visible" } else { "Collapsed" }
         Bloquear $false
-        Escanear
-        if ($driver -or $ajs.Count) { Ofrecer-Reinicio }
+        Ir 10
+        # Se vuelve a analizar para que los pasos muestren lo recien instalado
+        Escanear -1
     })
 
-    $ui.BtnDriverInstalar.Add_Click({
-        if (-not $script:ui.ChkDriver.IsChecked) { Aviso "Marca la casilla del driver para instalarlo."; return }
-        if (-not (Confirmar "Instalar $($script:pc.Driver.Nombre)?")) { return }
-        Bloquear $true
-        Iniciar-Progreso @($script:pc.Driver) "Empezando..."
-        if (Fase-Driver) { Log "Descarga e instala el driver desde la pagina que se abrio, y luego sigue con 2. Programas." }
-        Terminar-Progreso
-        Bloquear $false
-        Escanear
-    })
-
-    $ui.BtnInstalar.Add_Click({
-        $sel = @(Apps-Marcadas)
-        if (-not $sel.Count) { Aviso "No marcaste ninguna app (si marcaste Riot Games, elige tambien un juego)."; return }
-        if (-not (Confirmar "Se van a instalar $($sel.Count) apps:`n`n$(Lista $sel)`n`nPuedes dejar la PC sola mientras instala. Continuar?")) { return }
-        Bloquear $true
-        Iniciar-Progreso $sel "Empezando..."
-        Fase-Programas $sel
-        Terminar-Progreso
-        Log "Pendiente a mano: juegos desde cada launcher, Black Myth Wukong, perfiles de iCUE y FanControl."
-        Bloquear $false
-        Escanear
-    })
-
-    $ui.BtnAplicar.Add_Click({
-        $sel = @(Ajustes-Marcados)
-        if (-not $sel.Count) { Aviso "No marcaste ningun ajuste."; return }
-        if (-not (Confirmar "Se van a aplicar $($sel.Count) ajustes:`n`n$(Lista $sel)`n`nContinuar?")) { return }
-        Bloquear $true
-        Iniciar-Progreso $sel "Empezando..."
-        Fase-Optimizar $sel
-        Terminar-Progreso
-        Bloquear $false
-        Ofrecer-Reinicio
+    $ui.BtnReiniciar.Add_Click({
+        if (Confirmar "Para terminar hay que reiniciar la PC.`n`nGuarda lo que tengas abierto. Reiniciar ahora?") {
+            Log "Reiniciando..."
+            Restart-Computer -Force
+        }
     })
 
     $ui.BtnRevertir.Add_Click({
@@ -1126,16 +1349,12 @@ function Conectar-Eventos {
         if (-not $sel.Count) { Aviso "No marcaste ningun ajuste que se pueda revertir."; return }
         if (-not (Confirmar "Se van a revertir (volver a como viene Windows) $($sel.Count) ajustes:`n`n$(Lista $sel)`n`nContinuar?")) { return }
         Bloquear $true
-        Iniciar-Progreso $sel "Empezando..."
         foreach ($aj in $sel) {
-            Empezar-Item $aj "Revirtiendo"
             Log "Revirtiendo: $($aj.Nombre)..."
-            try { & $aj.Revertir; Log "  OK"; Terminar-Item $aj "revertido" }
-            catch { Log "  ERROR: $($_.Exception.Message)"; Terminar-Item $aj "fallo" }
+            try { & $aj.Revertir; Log "  OK" } catch { Log "  ERROR: $($_.Exception.Message)" }
         }
-        Terminar-Progreso
         Bloquear $false
-        Ofrecer-Reinicio
+        Aviso "Listo. Reinicia la PC para que todo vuelva a como viene Windows."
     })
 
     $ui.BtnWinUtil.Add_Click({
@@ -1147,7 +1366,7 @@ function Conectar-Eventos {
             Log "WinUtil se esta abriendo en otra ventana."
         } catch {
             Log "No se pudo abrir WinUtil: $($_.Exception.Message)"
-            Log "Abrelo a mano: PowerShell como administrador y pega  irm https://christitus.com/win | iex"
+            Aviso "No se pudo abrir WinUtil. Abrelo a mano: PowerShell como administrador y pega  irm https://christitus.com/win | iex"
         }
     })
 }
@@ -1176,30 +1395,25 @@ function Main {
 }
 
 function Abrir-Ventana {
-
     [xml]$x = $script:xaml
     $script:window = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader $x))
+    # Todos los controles con nombre del XAML quedan en $script:ui
     $script:ui = @{}
-    foreach ($n in "BtnSaltar", "Tabs", "TabProgreso", "TabDriver", "TabProgramas", "TabOptimizar", "GrpInfo", "GrpRecom", "BtnComenzar", "TxtProgreso", "BarProgreso", "TxtResumen", "PnlProgreso", "Log", "TxtInfo", "TxtRecom", "TxtDriver", "ChkDriver", "PnlLaunchers", "PnlUtilidades", "PnlExtras", "PnlPerifericos", "PnlAjustes",
-                   "BtnTodo", "BtnEscanear", "BtnDriverPagina", "BtnDriverInstalar", "BtnAppsRec", "BtnAppsNada", "BtnInstalar",
-                   "BtnAjRec", "BtnAjNada", "BtnAplicar", "BtnRevertir", "BtnWinUtil") {
+    foreach ($m in [regex]::Matches($script:xaml, 'x:Name="(\w+)"')) {
+        $n = $m.Groups[1].Value
         $script:ui[$n] = $script:window.FindName($n)
     }
-    $script:pc = @{}
+    $script:ui.ChkDriver = $null
+    $script:ui.TxtHola.Text = "Hola, $env:USERNAME"
 
     Conectar-Eventos
-    $script:ui.BtnComenzar.Add_Click({ Escanear })
-    $script:ui.BtnSaltar.Add_Click({
-        $script:saltar = $true
-        $script:ui.BtnSaltar.IsEnabled = $false
-        Log "  Saltando..."
-    })
     # Cualquier error inesperado va al registro en vez de cerrar la ventana
     $script:window.Dispatcher.Add_UnhandledException({
         param($sender, $e)
         try { Log "ERROR inesperado: $($e.Exception.Message)"; Bloquear $false } catch { }
         $e.Handled = $true
     })
+    Ir 0
     [void]$script:window.ShowDialog()
 }
 

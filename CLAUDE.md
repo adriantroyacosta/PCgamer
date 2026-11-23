@@ -10,9 +10,11 @@ Proyecto personal: no tiene relacion con trabajo.
 - `instalar.ps1`: script principal (PowerShell 5.1, ventana WPF con XAML embebido). Partes: listas de apps
   (`$launchers`, `$utilidades`, `$perifericos`, `$drivers`), `$ajustes` (cada uno con Desc, Recomendar, Aplicar,
   Revertir), deteccion (`Get-InfoPC`), ventana (XAML + `Conectar-Eventos`) y `Main` (auto-elevacion y ShowDialog).
-  Pestanas en orden de fases: Mi PC, 1. Driver, 2. Programas, 3. Optimizar (`Fase-Driver`, `Fase-Programas`,
-  `Fase-Optimizar`); el boton "Hacer todo lo recomendado" las corre seguidas y ofrece reiniciar una sola vez.
-  Inicio: nada se escanea hasta presionar "Comenzar analisis"; las pestanas 1-3 se activan despues del primer analisis.
+  Interfaz estilo bienvenida de Windows 11: paginas (`$paginas`, `Ir`, `Actualizar-Nav`) con texto a la izquierda,
+  tarjetas (`Nueva-Tarjeta`) a la derecha y flechas abajo: Inicio, Tu PC, Driver, Launchers, Utilidades, Extras,
+  Perifericos, Optimizar, Resumen, Progreso, Final. Nada se escanea hasta "Comenzar" y nada se instala hasta
+  "Instalar y optimizar" en el Resumen (`Fase-Driver`, `Fase-Programas`, `Fase-Optimizar`, un solo reinicio al final).
+  `$info` tiene la descripcion corta de cada app. Los controles del XAML se cargan solos en `$script:ui` por su x:Name.
   Si falta winget, `Instalar-Winget` lo registra o lo descarga de github.com/microsoft/winget-cli (con dependencias).
   Errores no atrapados de la ventana van al registro (Dispatcher.UnhandledException), no cierran la ventana.
   Pestana Progreso: `Iniciar-Progreso`, `Empezar-Item`, `Terminar-Item`, `Terminar-Progreso`.
@@ -61,7 +63,7 @@ Proyecto personal: no tiene relacion con trabajo.
 
 ## Como probar
 En la PC actual (con todo instalado) correr el one-liner o `INSTALAR.bat`: Mi PC debe mostrar Windows 11, la GPU AMD
-con su driver ya instalado y Corsair conectado; en 2. Programas casi todo debe salir con check verde y sin marcar.
+con su driver ya instalado y Corsair conectado; en Launchers y Utilidades casi todo debe salir con check verde y sin marcar.
 Cualquier app en "Fallaron" indica un ID incorrecto o un problema de la fuente.
 
 ## Ideas pendientes

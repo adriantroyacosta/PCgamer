@@ -35,20 +35,25 @@ si no, descarga la ultima version de GitHub.
 
 ## Como funciona
 
-Se abre una ventana con pestanas en el orden logico para dejar la PC lista para jugar, con **un solo reinicio al final**.
-**Nada se instala ni cambia hasta que confirmas.**
+Se navega como la bienvenida de Windows 11: una pagina a la vez, con la explicacion a la izquierda, tarjetas con
+icono y casilla a la derecha, y flechas abajo para avanzar o volver (y el boton de inicio). **Nada se instala ni
+cambia hasta presionar "Instalar y optimizar" en el resumen.**
 
-| Pestana | Que tiene |
-|---------|-----------|
-| **Mi PC** | Pantalla de inicio: pide conectar todos los perifericos y presionar **Comenzar analisis** (las demas pestanas se activan despues). Si falta winget lo instala solo (primero lo activa; si no, lo descarga de Microsoft). Si no hay internet, avisa. Muestra Windows, tipo (escritorio/laptop), procesador, grafica, RAM, disco y perifericos conectados. Recomendaciones y consejos de BIOS (EXPO/XMP, Resizable BAR). Boton **Hacer todo lo recomendado** que corre las fases 1, 2 y 3 seguidas. |
-| **1. Driver** | Detecta la tarjeta de video (AMD, NVIDIA o Intel) y si su driver ya esta instalado. Si falta, viene marcado: Intel se instala con winget; AMD y NVIDIA no estan en winget, asi que se abre su pagina oficial. Va primero porque los juegos y ajustes como HAGS dependen de el. |
-| **2. Programas** | Launchers (con Riot Games: al marcarlo eliges Valorant y/o League of Legends y la region), utilidades (Chrome, WinRAR, VLC y mas), extras para gamers opcionales (Discord, OBS, MSI Afterburner, HWiNFO) y programas de perifericos (Corsair, Logitech, Razer, SteelSeries, Turtle Beach, ROCCAT, Elgato, ASUS ROG) con casillas. Lo que falta y los perifericos conectados vienen marcados; lo instalado lleva un check verde. |
-| **3. Optimizar** | Ajustes con casillas y explicacion al pasar el mouse, recomendados segun tu PC. Va al final para que el punto de restauracion guarde la PC con todo instalado. Botones *Aplicar*, *Revertir* y *Abrir WinUtil (opcional)*. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
+| Pagina | Que tiene |
+|--------|-----------|
+| **Hola** | Bienvenida con tu nombre y boton **Comenzar**, que analiza la PC (si falta winget, lo instala solo). |
+| **1. Esta es tu PC** | Windows, procesador, grafica, RAM, disco, winget y perifericos conectados, y recomendaciones (driver, BIOS: XMP/EXPO, Resizable BAR). |
+| **2. Driver de video** | AMD, NVIDIA o Intel. Si falta viene marcado: Intel se instala con winget; AMD y NVIDIA abren su pagina oficial. |
+| **3. Launchers** | Steam, EA, Epic, GOG, Ubisoft, Battle.net, Xbox, Playnite y Riot Games (al marcarlo eliges Valorant y/o League of Legends y la region). |
+| **4. Utilidades** | Chrome, WinRAR, Transmission, VirtualBox, VLC, iTunes, PC Manager, Terminal, FanControl, Dolby Access. |
+| **5. Extras para gamers** | Discord, OBS Studio, MSI Afterburner, HWiNFO (opcionales, sin marcar). |
+| **6. Perifericos** | Corsair, Logitech, Razer, SteelSeries, Turtle Beach, ROCCAT, Elgato, ASUS ROG; lo conectado viene marcado. |
+| **7. Optimizar** | Ajustes recomendados segun tu PC, con su explicacion. Se pueden revertir. Detalle en [docs/optimizacion.md](docs/optimizacion.md). |
+| **8. Resumen** | "Todo listo para empezar": lo que se va a hacer, en orden, y el boton **Instalar y optimizar**. |
+| **Preparando tu PC** | Una tarjeta por cosa con su icono, estado y tiempo; barra de avance, **Saltar este programa** y **Ver detalles**. Si uno tarda mas de 20 minutos se cancela solo. |
+| **Todo listo** | Resumen final (instalados, ya estaban, fallaron) y **Reiniciar ahora**. |
 
-| **Progreso** | Se abre sola al instalar o aplicar: barra de avance, "Instalando 3 de 9: Steam (1:24)" con el tiempo que lleva, y una fila por cada cosa con su icono y estado (En espera, Instalando..., Instalado con su tiempo, Ya estaba, Fallo con el motivo). Boton **Saltar este programa** si uno se queda pegado; ademas, si uno tarda mas de 20 minutos se cancela solo y sigue con el siguiente. Si Epic o GOG fallan, se prueba su version de la Microsoft Store. Al terminar queda el resumen con el tiempo total. |
-
-Cada app muestra el icono de su sitio oficial (se descarga al abrir; sin internet se ve sin icono). Lo que ya esta instalado
-lleva un check verde. Abajo hay un registro con el detalle de todo lo que va haciendo.
+Lo recomendado viene marcado; lo que ya tienes lleva un check verde. Cada app muestra el icono de su sitio oficial.
 
 ## Agregar o quitar apps
 Edita las listas al inicio de `instalar.ps1`:
