@@ -49,6 +49,7 @@ $script:utilidades = @(
     @{ Nombre = "WinRAR"; Web = "win-rar.com";           Id = "RARLab.WinRAR";               Detectar = '^WinRAR' },
     @{ Nombre = "Transmission"; Web = "transmissionbt.com";     Id = "Transmission.Transmission";   Detectar = '^Transmission' },
     @{ Nombre = "VirtualBox"; Web = "virtualbox.org";       Id = "Oracle.VirtualBox";           Detectar = 'VirtualBox' },
+    @{ Nombre = "VLC";              Web = "videolan.org";        Id = "VideoLAN.VLC";                Detectar = '^VLC media player' },
     @{ Nombre = "iTunes"; Web = "apple.com";           Id = "9PB2MZ1ZMB1S"; Fuente = "msstore"; Detectar = '^iTunes$|^AppleInc\.iTunes$' },
     @{ Nombre = "PC Manager"; Web = "pcmanager.microsoft.com";       Id = "9PM860492SZD"; Fuente = "msstore"; Detectar = '^PC Manager$|^Microsoft\.MicrosoftPCManager$' },
     @{ Nombre = "Terminal Windows"; Web = "microsoft.com"; Id = "Microsoft.WindowsTerminal";   Detectar = '^Microsoft\.WindowsTerminal$' },

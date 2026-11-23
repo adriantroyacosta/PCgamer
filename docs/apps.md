@@ -50,6 +50,7 @@ Leyenda: 🟢 lo instala el script · 🟡 se baja desde su launcher · 🔴 a m
 | WinRAR | `RARLab.WinRAR` |
 | Transmission | `Transmission.Transmission` |
 | VirtualBox | `Oracle.VirtualBox` |
+| VLC | `VideoLAN.VLC` |
 | iTunes | `9PB2MZ1ZMB1S` (Store) |
 | PC Manager | `9PM860492SZD` (Store) |
 | Terminal Windows | `Microsoft.WindowsTerminal` |
